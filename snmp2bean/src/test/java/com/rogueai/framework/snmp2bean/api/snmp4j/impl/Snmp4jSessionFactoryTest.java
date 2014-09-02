@@ -15,16 +15,21 @@
  *******************************************************************************/
 package com.rogueai.framework.snmp2bean.api.snmp4j.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.util.List;
 
 import org.junit.Test;
 
-import com.rogueai.framework.snmp2bean.api.test.MibTest;
+import com.rogueai.framework.snmp2bean.api.test.InitSnmpTest;
 import com.rogueai.framework.snmp2bean.domain.IfEntry;
 import com.rogueai.framework.snmp2bean.domain.SystemInfo;
 
 
-public class Snmp4jSessionFactoryTest extends MibTest {
+public class Snmp4jSessionFactoryTest extends InitSnmpTest {
     
     @Test    
     public void testGet() {

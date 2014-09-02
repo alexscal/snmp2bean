@@ -17,6 +17,7 @@ package com.rogueai.framework.snmp2bean.api.snmp4J.impl;
 
 import com.rogueai.framework.snmp2bean.api.SnmpClientFacade;
 import com.rogueai.framework.snmp2bean.api.SnmpService;
+import com.rogueai.framework.snmp2bean.api.SnmpServiceWrite;
 import com.rogueai.framework.snmp2bean.api.SnmpSessionFactory;
 import com.rogueai.framework.snmp2bean.api.SnmpTargetFactory;
 
@@ -26,22 +27,24 @@ public class Snmp4JClientFacade implements SnmpClientFacade {
     
     private Snmp4JTargetFactory snmp4JTargetFactory = null;
     
-    public SnmpService getSnmpServiceFactory() {
-        return null;
+    private SnmpService snmpService = null;
+    
+    private SnmpServiceWrite snmpServiceWrite = null;
+    
+    public SnmpServiceWrite getSnmpServiceWrite() {
+        return snmpServiceWrite == null ? new Snmp4JServiceWrite() : snmpServiceWrite;
+    }
+    
+    public SnmpService getSnmpService() {
+        return snmpService == null ? new Snmp4JService() : snmpService;
     }
     
     public SnmpSessionFactory getSnmpSessionFactory() {
-        if(snmp4JSessionFactory == null) {
-            snmp4JSessionFactory = new Snmp4JSessionFactory();
-        }
-        return snmp4JSessionFactory;
+        return snmp4JSessionFactory == null ? new Snmp4JSessionFactory() : snmp4JSessionFactory;
     }
     
     public SnmpTargetFactory getSnmpTargetFactory() {
-        if(snmp4JTargetFactory == null) {
-            snmp4JTargetFactory = new Snmp4JTargetFactory();
-        }
-        return snmp4JTargetFactory;
+        return snmp4JTargetFactory == null ? new Snmp4JTargetFactory() : snmp4JTargetFactory;
     }
     
 }

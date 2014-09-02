@@ -15,7 +15,8 @@
  *******************************************************************************/
 package com.rogueai.framework.snmp2bean.api.test;
 
-import junit.framework.TestCase;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 
 import com.rogueai.framework.snmp2bean.api.SnmpClientFacade;
 import com.rogueai.framework.snmp2bean.api.SnmpService;
@@ -25,25 +26,26 @@ import com.rogueai.framework.snmp2bean.api.SnmpTargetFactory;
 import com.rogueai.framework.snmp2bean.api.snmp4J.impl.Snmp4JClientFacade;
 import com.rogueai.framework.snmp2bean.api.snmp4J.impl.Snmp4JService;
 
-public class MibTest extends TestCase {
-    
-    protected SnmpSession session;
-    
-    protected SnmpService service;
 
-    @Override
-    protected void setUp() throws Exception {
+public abstract class InitSnmpTest {
+    
+    public static SnmpSession session;
+    
+    public static SnmpService service;
+
+    @BeforeClass
+    public static void setUp() throws Exception {
         SnmpClientFacade facade = new Snmp4JClientFacade();
         SnmpSessionFactory sessionFactory = facade.getSnmpSessionFactory();
         SnmpTargetFactory targetFactory = facade.getSnmpTargetFactory();
         session = sessionFactory.newSnmpSession(targetFactory.newSnmpTarget("127.0.0.1", 161));
-        service = new Snmp4JService();
+        service = facade.getSnmpService();
         ((Snmp4JService)service).setSnmpSession(session);
         
     }
     
-    @Override
-    protected void tearDown() throws Exception {
+    @AfterClass
+    public static void tearDown() throws Exception {
         session.close();
     }
     
