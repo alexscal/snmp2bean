@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package com.rogueai.framework.snmp2bean.domain;
+package com.rogueai.framework.snmp2bean.domain.test;
 
 import java.io.Serializable;
 import java.util.HashMap;
