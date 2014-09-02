@@ -15,28 +15,20 @@
  *******************************************************************************/
 package com.rogueai.framework.snmp2bean.api.impl;
 
-import com.rogueai.framework.snmp2bean.api.SnmpClientFacade;
-import com.rogueai.framework.snmp2bean.api.SnmpSessionFactory;
+import com.rogueai.framework.snmp2bean.api.SnmpTarget;
 import com.rogueai.framework.snmp2bean.api.SnmpTargetFactory;
 
-public class Snmp4JClientFacade implements SnmpClientFacade {
-    
-    private SnmpSessionFactory snmp4JSessionFactory = null;
-    
-    private Snmp4JTargetFactory snmp4JTargetFactory = null;
-    
-    public SnmpSessionFactory getSnmpSessionFactory() {
-        if(snmp4JSessionFactory == null) {
-            snmp4JSessionFactory = new Snmp4JSessionFactory();
-        }
-        return snmp4JSessionFactory;
+public class Snmp4JTargetFactory implements SnmpTargetFactory {
+  
+    public Snmp4JTargetFactory() {
     }
-    
-    public SnmpTargetFactory getSnmpTargetFactory() {
-        if(snmp4JTargetFactory == null) {
-            snmp4JTargetFactory = new Snmp4JTargetFactory();
-        }
-        return snmp4JTargetFactory;
+
+    public SnmpTarget newSnmpTarget(String ip) {
+        return new Snmp4JTarget(ip);
+    }
+
+    public SnmpTarget newSnmpTarget(String ip, int port) {
+        return new Snmp4JTarget(ip, port);
     }
     
 }

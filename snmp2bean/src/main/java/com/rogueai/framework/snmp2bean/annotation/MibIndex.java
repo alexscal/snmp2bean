@@ -24,4 +24,12 @@ import java.lang.annotation.Target;
 @Target( { ElementType.FIELD })
 public @interface MibIndex {
 
+    public static final int VARSTR_WITH_LENGTH = -1;
+
+    public static final int VARSTR_WITHOUT_LENGTH = -2;
+
+    int no(); // index no, 0 start.
+
+    int length(); // length of the index
+    
 }

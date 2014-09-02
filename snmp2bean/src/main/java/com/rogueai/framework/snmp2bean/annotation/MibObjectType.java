@@ -20,10 +20,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import com.rogueai.framework.snmp2bean.enums.SmiType;
+
 @Retention(RetentionPolicy.RUNTIME)
 @Target( { ElementType.FIELD })
 public @interface MibObjectType {
-	public enum Access { READ, WRITE, CREATE }
-	String oid();
-
+    public enum Access { READ, WRITE, CREATE }
+    String oid();
+    SmiType smiType();
+    Access access();
+    
 }
