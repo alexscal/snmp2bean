@@ -35,27 +35,6 @@ public interface SnmpSession {
     Target getReadTarget();
     
     Target getWriteTarget();
-    
-    
-    
-
-  /*  <T> T get(Class<T> scalarClass) throws IOException, SnmpException, SnmpAnnotationException;
-
-    <T> T get(Class<T> scalarClass, String[] fields) throws IOException, SnmpException, SnmpAnnotationException;
-    
-    <T> List<T> getTable(Class<T> entryClass) throws IOException, SnmpException, SnmpAnnotationException;
-
-    <T> T getByIndex(Class<T> entryClass, Serializable indices) throws IOException, SnmpException, SnmpAnnotationException;
-
-    <T> T getByIndex(Class<T> entryClass, Serializable indices, String[] fields) throws IOException, SnmpException, SnmpAnnotationException;
-
-    void set(Object object) throws IOException, SnmpException,  SnmpAnnotationException;
-
-    void create(Object entry) throws IOException, SnmpException,  SnmpAnnotationException;
-
-    void delete(Object entry) throws IOException, SnmpException,  SnmpAnnotationException;
-
-*/
 
     void close() throws IOException;
     
