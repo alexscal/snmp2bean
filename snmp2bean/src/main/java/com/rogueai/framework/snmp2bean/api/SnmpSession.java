@@ -16,11 +16,9 @@
 package com.rogueai.framework.snmp2bean.api;
 
 import java.io.IOException;
-import java.io.Serializable;
-import java.util.List;
 
-import com.rogueai.framework.snmp2bean.exception.SnmpAnnotationException;
-import com.rogueai.framework.snmp2bean.exception.SnmpException;
+import org.snmp4j.Snmp;
+import org.snmp4j.Target;
 
 public interface SnmpSession {
  
@@ -31,8 +29,17 @@ public interface SnmpSession {
     int getTimeout();
 
     void setTimeout(int timeout);
+    
+    Snmp getSnmp();
+    
+    Target getReadTarget();
+    
+    Target getWriteTarget();
+    
+    
+    
 
-    <T> T get(Class<T> scalarClass) throws IOException, SnmpException, SnmpAnnotationException;
+  /*  <T> T get(Class<T> scalarClass) throws IOException, SnmpException, SnmpAnnotationException;
 
     <T> T get(Class<T> scalarClass, String[] fields) throws IOException, SnmpException, SnmpAnnotationException;
     
@@ -47,6 +54,8 @@ public interface SnmpSession {
     void create(Object entry) throws IOException, SnmpException,  SnmpAnnotationException;
 
     void delete(Object entry) throws IOException, SnmpException,  SnmpAnnotationException;
+
+*/
 
     void close() throws IOException;
     

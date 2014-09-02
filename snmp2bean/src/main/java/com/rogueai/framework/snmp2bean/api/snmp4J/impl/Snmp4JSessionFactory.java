@@ -13,30 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package com.rogueai.framework.snmp2bean.api.impl;
+package com.rogueai.framework.snmp2bean.api.snmp4J.impl;
 
-import com.rogueai.framework.snmp2bean.api.SnmpClientFacade;
+import java.io.IOException;
+
+import com.rogueai.framework.snmp2bean.api.SnmpSession;
 import com.rogueai.framework.snmp2bean.api.SnmpSessionFactory;
-import com.rogueai.framework.snmp2bean.api.SnmpTargetFactory;
+import com.rogueai.framework.snmp2bean.api.SnmpTarget;
 
-public class Snmp4JClientFacade implements SnmpClientFacade {
+public class Snmp4JSessionFactory implements SnmpSessionFactory {
     
-    private SnmpSessionFactory snmp4JSessionFactory = null;
-    
-    private Snmp4JTargetFactory snmp4JTargetFactory = null;
-    
-    public SnmpSessionFactory getSnmpSessionFactory() {
-        if(snmp4JSessionFactory == null) {
-            snmp4JSessionFactory = new Snmp4JSessionFactory();
-        }
-        return snmp4JSessionFactory;
+    private final Snmp4JSmiTypeProvider typeProvider;
+
+    private final Snmp4JErrorMsgProvider errorMsgProvider;
+
+    public Snmp4JSessionFactory() {
+        typeProvider = new Snmp4JSmiTypeProvider();
+        errorMsgProvider = new Snmp4JErrorMsgProvider();
     }
-    
-    public SnmpTargetFactory getSnmpTargetFactory() {
-        if(snmp4JTargetFactory == null) {
-            snmp4JTargetFactory = new Snmp4JTargetFactory();
-        }
-        return snmp4JTargetFactory;
+
+    public SnmpSession newSnmpSession(SnmpTarget target) throws IOException {
+        Snmp4JSession session = new Snmp4JSession(target);
+        session.setSmiTypeProvider(typeProvider);
+        session.setSnmpErrorMsgProvider(errorMsgProvider);
+        return session;
     }
     
 }

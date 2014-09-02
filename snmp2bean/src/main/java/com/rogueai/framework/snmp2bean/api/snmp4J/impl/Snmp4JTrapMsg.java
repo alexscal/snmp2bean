@@ -1,4 +1,4 @@
-package com.rogueai.framework.snmp2bean.api.impl;
+package com.rogueai.framework.snmp2bean.api.snmp4J.impl;
 
 import java.util.Collections;
 import java.util.HashMap;

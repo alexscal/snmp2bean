@@ -49,11 +49,11 @@ public abstract class AbstractSnmpSession implements SnmpSession {
         this.errorMsgProvider = errorMsgProvider;
     }
 
-    protected final SmiTypeProvider getSmiTypeProvider() {
+    public final SmiTypeProvider getSmiTypeProvider() {
         return smiTypeProvider;
     }
 
-    protected final SnmpErrorMsgProvider getSnmpErrorMsgProvider() {
+    public final SnmpErrorMsgProvider getSnmpErrorMsgProvider() {
         return errorMsgProvider;
     }
 }

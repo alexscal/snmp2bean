@@ -13,40 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package com.rogueai.framework.snmp2bean.api.impl;
+package com.rogueai.framework.snmp2bean.api.snmp4J.impl;
 
 import java.io.IOException;
-import java.io.Serializable;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Vector;
 
-import org.snmp4j.PDU;
 import org.snmp4j.Snmp;
 import org.snmp4j.Target;
 import org.snmp4j.TransportMapping;
-import org.snmp4j.event.ResponseEvent;
-import org.snmp4j.smi.Integer32;
-import org.snmp4j.smi.OID;
-import org.snmp4j.smi.UnsignedInteger32;
-import org.snmp4j.smi.Variable;
-import org.snmp4j.smi.VariableBinding;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
 
-import com.rogueai.framework.snmp2bean.annotation.MibIndex;
-import com.rogueai.framework.snmp2bean.annotation.MibObjectType;
-import com.rogueai.framework.snmp2bean.annotation.MibObjectType.Access;
-import com.rogueai.framework.snmp2bean.annotation.RowStatus;
 import com.rogueai.framework.snmp2bean.api.AbstractSnmpSession;
-import com.rogueai.framework.snmp2bean.api.SnmpSession;
 import com.rogueai.framework.snmp2bean.api.SnmpTarget;
-import com.rogueai.framework.snmp2bean.enums.SmiType;
-import com.rogueai.framework.snmp2bean.exception.SnmpAnnotationException;
-import com.rogueai.framework.snmp2bean.exception.SnmpException;
 
 public class Snmp4JSession extends AbstractSnmpSession {
     
@@ -57,11 +34,15 @@ public class Snmp4JSession extends AbstractSnmpSession {
     public Snmp4JSession(SnmpTarget target) throws IOException {
         this.target = (Snmp4JTarget) target;
         TransportMapping tm = new DefaultUdpTransportMapping();
-        this.snmp4J = new Snmp(tm);
-        this.snmp4J.listen();
+        snmp4J = new Snmp(tm);
+        snmp4J.listen();
     }
     
-    private Target getReadTarget() {
+    public Snmp getSnmp() {
+        return snmp4J;
+    }
+    
+    public Target getReadTarget() {
         Target targetImpl = target.getReadTarget();
         initTimeoutRetries(targetImpl);
         return targetImpl;
@@ -72,14 +53,17 @@ public class Snmp4JSession extends AbstractSnmpSession {
         targetImpl.setRetries(getRetries());
     }
     
-    private Target getWriteTarget() {
+    public Target getWriteTarget() {
         Target targetImpl = target.getWriteTarget();
         initTimeoutRetries(targetImpl);
         return targetImpl;
     }
     
-    public <T> T get(Class<T> scalarClass) throws IOException, SnmpException,
-    SnmpAnnotationException {
+    public void close() throws IOException {
+        snmp4J.close();
+    }
+    
+    /*public <T> T get(Class<T> scalarClass) throws IOException, SnmpException,  SnmpAnnotationException {
         PDU reqPDU = newGetPDU(scalarClass);
         return get(scalarClass, reqPDU);
     }
@@ -227,9 +211,7 @@ public class Snmp4JSession extends AbstractSnmpSession {
         }
     }
     
-    public void close() throws IOException {
-        snmp4J.close();
-    }
+
     
     private Field[] getWritePropFields(Class clazz) {
         List<Field> list = new ArrayList<Field>();
@@ -298,7 +280,14 @@ public class Snmp4JSession extends AbstractSnmpSession {
                     if (oid == null)
                         oid = new OID();
                     oid.append((String) value);
-                }  else if (smiType == SmiType.OCTET_STRING) {
+                } else if (smiType == SmiType.DISPLAY_STRING) {
+                    byte[] bytes = ((String) value).getBytes();
+                    int[] integers = new int[length];
+                    for (int i = 0; i < integers.length; i++) {
+                        integers[i] = (int) bytes[i];
+                    }
+                    oid = appendRawOids(oid, integers);
+                } else if (smiType == SmiType.OCTET_STRING) {
                     byte[] bytes = ((byte[]) value);
                     int[] integers = new int[length];
                     for (int i = 0; i < integers.length; i++) {
@@ -374,7 +363,11 @@ public class Snmp4JSession extends AbstractSnmpSession {
                     int[] oidValue = new int[length];
                     System.arraycopy(indexOids, j, oidValue, 0, length);
                     indexField.set(entry, intAry2Str(oidValue));
-                }  else if (smiType == SmiType.OCTET_STRING) {
+                } else if (smiType == SmiType.DISPLAY_STRING) {
+                    byte[] bytes = new byte[length];
+                    bytes = copyBytes(indexOids, j, bytes);
+                    indexField.set(entry, new String(bytes));
+                } else if (smiType == SmiType.OCTET_STRING) {
                     byte[] bytes = new byte[length];
                     bytes = copyBytes(indexOids, j, bytes);
                     indexField.set(entry, bytes);
@@ -460,18 +453,20 @@ public class Snmp4JSession extends AbstractSnmpSession {
     private void fillProperties(Object object, PDU pdu)
             throws InstantiationException, IllegalAccessException {
         Field[] propFields = getPropFields(object.getClass());
-        Vector variableBindings = pdu.getVariableBindings();
+        Vector<? extends VariableBinding> variableBindings = pdu.getVariableBindings();
         for (Field propField : propFields) {
             propField.setAccessible(true);
             MibObjectType mot = propField.getAnnotation(MibObjectType.class);
             OID oid = new OID(mot.oid());
-            Variable variable = findVariableByOid(oid, variableBindings);
+            VariableBinding variable = findVariableBindingByOid(oid, variableBindings);
             if (variable != null) {
-                Object value = ((Integer32) variable).getValue();
-                if (mot.smiType() == SmiType.OID) {
-                    value = ((OID) variable).toString();
+                Object value = null;
+                if (mot.smiType() == SmiType.DISPLAY_STRING) {
+                    value = variable.getVariable().toString();
+                } else if (mot.smiType() == SmiType.OID) {
+                    value = variable.getOid().toString();
                 }
-                propField.set(object, value);
+                if (value != null) propField.set(object, value);
             }
         }
     }
@@ -481,6 +476,16 @@ public class Snmp4JSession extends AbstractSnmpSession {
             VariableBinding vb = (VariableBinding) it.next();
             if (vb.getOid().startsWith(oid)) {
                 return vb.getVariable();
+            }
+        }
+        return null;
+    }
+    
+    private VariableBinding findVariableBindingByOid(OID oid, Vector variableBindings) {
+        for (Iterator it = variableBindings.iterator(); it.hasNext();) {
+            VariableBinding vb = (VariableBinding) it.next();
+            if (vb.getOid().startsWith(oid)) {
+                return vb;
             }
         }
         return null;
@@ -501,8 +506,7 @@ public class Snmp4JSession extends AbstractSnmpSession {
                 oid.append(indexOid);
             }
             Class type = writeField.getType();
-            Constructor constructor = getSmiTypeProvider().getSmiType(
-                    mot.smiType()).getConstructor(new Class[] { type });
+            Constructor constructor = getSmiTypeProvider().getSmiType(mot.smiType()).getConstructor(new Class[] { type });
             Variable variable = (Variable) constructor
                     .newInstance(new Object[] { writeField.get(entry) });
             pdu.add(new VariableBinding(oid, variable));
@@ -754,7 +758,7 @@ public class Snmp4JSession extends AbstractSnmpSession {
             throw e;
         }
     }
-    
+    */
     
     
 }

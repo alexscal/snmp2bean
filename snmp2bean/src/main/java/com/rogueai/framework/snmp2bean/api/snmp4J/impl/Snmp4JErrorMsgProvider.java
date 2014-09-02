@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package com.rogueai.framework.snmp2bean.api.impl;
+package com.rogueai.framework.snmp2bean.api.snmp4J.impl;
 
 import org.snmp4j.mp.SnmpConstants;
 
