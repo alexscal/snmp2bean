@@ -19,6 +19,6 @@ import com.rogueai.framework.snmp2bean.enums.SmiType;
 
 public interface SmiTypeProvider {
     
-    Class getSmiType(SmiType smiTypeEnum);
+    Class<?> getSmiType(SmiType smiTypeEnum);
     
 }

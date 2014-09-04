@@ -13,22 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package com.rogueai.framework.snmp2bean.api.snmp4J.impl;
+package com.rogueai.framework.snmp2bean.api.snmp4J.impl.factory;
 
 import com.rogueai.framework.snmp2bean.api.SnmpTarget;
 import com.rogueai.framework.snmp2bean.api.SnmpTargetFactory;
+import com.rogueai.framework.snmp2bean.api.snmp4J.impl.Snmp4JTarget;
 
 public class Snmp4JTargetFactory implements SnmpTargetFactory {
   
     public Snmp4JTargetFactory() {
     }
 
-    public SnmpTarget newSnmpTarget(String ip) {
+    public SnmpTarget createSnmpTarget(String ip) {
         return new Snmp4JTarget(ip);
     }
 
-    public SnmpTarget newSnmpTarget(String ip, int port) {
-        return new Snmp4JTarget(ip, port);
+    public SnmpTarget createSnmpTarget(String ip, Integer port) {
+        return port != null ? new Snmp4JTarget(ip, port) : createSnmpTarget(ip);
     }
     
 }

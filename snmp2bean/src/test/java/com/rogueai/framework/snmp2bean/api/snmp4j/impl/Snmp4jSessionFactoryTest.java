@@ -25,8 +25,8 @@ import java.util.List;
 import org.junit.Test;
 
 import com.rogueai.framework.snmp2bean.api.test.InitSnmpTest;
-import com.rogueai.framework.snmp2bean.domain.IfEntry;
-import com.rogueai.framework.snmp2bean.domain.SystemInfo;
+import com.rogueai.framework.snmp2bean.domain.test.IfEntry;
+import com.rogueai.framework.snmp2bean.domain.test.SystemInfo;
 
 
 public class Snmp4jSessionFactoryTest extends InitSnmpTest {

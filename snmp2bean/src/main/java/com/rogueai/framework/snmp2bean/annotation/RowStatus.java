@@ -23,7 +23,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target( { ElementType.TYPE })
 public @interface RowStatus {
-	String oid();
-	int delete() default 6;
-	int create() default 4;
+	
+    String oid();
+	
+    int delete() default 6;
+	
+    int create() default 4;
 }

@@ -25,9 +25,7 @@ import org.snmp4j.PDU;
 import org.snmp4j.Snmp;
 import org.snmp4j.event.ResponseEvent;
 import org.snmp4j.smi.OID;
-import org.snmp4j.smi.VariableBinding;
 
-import com.rogueai.framework.snmp2bean.annotation.MibObjectType;
 import com.rogueai.framework.snmp2bean.api.SmiTypeProvider;
 import com.rogueai.framework.snmp2bean.api.SnmpErrorMsgProvider;
 import com.rogueai.framework.snmp2bean.api.SnmpService;
@@ -37,21 +35,24 @@ import com.rogueai.framework.snmp2bean.exception.SnmpAnnotationException;
 import com.rogueai.framework.snmp2bean.exception.SnmpException;
 
 public class Snmp4JService extends AbstractSnmp4JService implements SnmpService {
-       
+    
+    public Snmp4JService(SnmpSession snmpSession) {
+        setSnmpSession(snmpSession);
+    }
+    
     protected Snmp getSnmp() {
         return snmpSession.getSnmp();
     }
     
     public <T> T get(Class<T> scalarClass) throws IOException, SnmpException,  SnmpAnnotationException {
-        PDU reqPDU = newGetPDU(scalarClass);
-        return get(scalarClass, reqPDU);
+        PDU requestPDU = pduBuilder.buildGetPDU(scalarClass);
+        return get(scalarClass, requestPDU);
     }
     
-    public <T> T get(Class<T> scalarClass, String[] fields) throws IOException,
-    SnmpException, SnmpAnnotationException {
+    public <T> T get(Class<T> scalarClass, String[] fields) throws IOException, SnmpException, SnmpAnnotationException {
         try {
-            PDU reqPDU = newGetPDU(scalarClass, fields);
-            return get(scalarClass, reqPDU);
+            PDU requestPDU = pduBuilder.buildGetPDU(scalarClass, fields);
+            return get(scalarClass, requestPDU);
         } catch (SecurityException e) {
             throw new SnmpAnnotationException(e);
         } catch (NoSuchFieldException e) {
@@ -59,29 +60,27 @@ public class Snmp4JService extends AbstractSnmp4JService implements SnmpService 
         }
     }
     
-    public <T> List<T> getTable(Class<T> entryClass) throws IOException, SnmpException,
-    SnmpAnnotationException {
+    public <T> List<T> getTable(Class<T> entryClass) throws IOException, SnmpException, SnmpAnnotationException {
         try {
             List<T> list = new ArrayList<T>();
-            // init pdu
-            PDU reqPDU = newGetNextFirstEntryPDU(entryClass);
-            checkReqError(reqPDU);
-            OID firstReqOid = reqPDU.get(0).getOid();
+            PDU requestPDU = pduBuilder.buildGetNextFirstEntryPDU(entryClass);
+            checkRequestError(requestPDU);
+            OID firstRequestOID = requestPDU.get(0).getOid();
             while (true) {
-                ResponseEvent event = getSnmp().getNext(reqPDU, snmpSession.getReadTarget());
+                ResponseEvent event = getSnmp().getNext(requestPDU, snmpSession.getReadTarget());
                 checkEventError(event);
-                PDU respPDU = event.getResponse();
-                checkResError(respPDU);
-                OID firstRespOid = respPDU.get(0).getOid();
-                if (isTableEnd(firstReqOid, firstRespOid)) {
+                PDU responsePDU = event.getResponse();
+                checkResponseError(responsePDU);
+                OID firstResponseOID = responsePDU.get(0).getOid();
+                if (isTableEnd(firstRequestOID, firstResponseOID)) {
                     break;
                 }
-                int[] indexOids = extractIndexOids(firstRespOid, firstReqOid);
+                int[] indexOIDs = extractIndexOids(firstResponseOID, firstRequestOID);
                 T entry = entryClass.newInstance();
-                fillIndices(entry, indexOids);
-                fillProperties(entry, respPDU);
+                populateOidIndexes(entry, indexOIDs);
+                populateProperties(entry, responsePDU);
                 list.add(entry);
-                reqPDU = newGetNextEntryPDU(entry);
+                requestPDU = pduBuilder.buildGetNextEntryPDU(entry);
             }
             return list;
         } catch (IllegalArgumentException e) {
@@ -93,12 +92,11 @@ public class Snmp4JService extends AbstractSnmp4JService implements SnmpService 
         }
     }
     
-    public <T> T getByIndex(Class<T> entryClass, Serializable indices)
-            throws IOException, SnmpException, SnmpAnnotationException {
+    public <T> T getByIndex(Class<T> entryClass, Serializable indexes) throws IOException, SnmpException, SnmpAnnotationException {
         try {
-            T entry = buildEntryWithIndices(entryClass, indices);
-            PDU reqPDU = newGetEntryPDU(entry);
-            return getEntryByIndex(entry, reqPDU);
+            T entry = buildEntryWithIndexes(entryClass, indexes);
+            PDU requestPDU = pduBuilder.buildGetEntryPDU(entry);
+            return getEntryByIndex(entry, requestPDU);
         } catch (InstantiationException e) {
             throw new SnmpAnnotationException(e);
         } catch (IllegalAccessException e) {
@@ -106,12 +104,10 @@ public class Snmp4JService extends AbstractSnmp4JService implements SnmpService 
         }
     }
     
-    public <T> T getByIndex(Class<T> entryClass, Serializable indices,
-            String[] fields) throws IOException, SnmpException,
-            SnmpAnnotationException {
+    public <T> T getByIndex(Class<T> entryClass, Serializable indexes, String[] fields) throws IOException, SnmpException, SnmpAnnotationException {
         try {
-            T entry = buildEntryWithIndices(entryClass, indices);
-            PDU reqPDU = newGetEntryPDU(entry, fields);
+            T entry = buildEntryWithIndexes(entryClass, indexes);
+            PDU reqPDU = pduBuilder.buildGetEntryPDU(entry, fields);
             return getEntryByIndex(entry, reqPDU);
         } catch (IllegalArgumentException e) {
             throw new SnmpAnnotationException(e);
@@ -126,59 +122,19 @@ public class Snmp4JService extends AbstractSnmp4JService implements SnmpService 
         }
     }
     
-    
-    
-    
-    
     public void close() throws IOException {
         getSnmp().close();
     }
     
-    
-    
-    
-    
-    
-    
-    
-    
-
-    
-    
-    
-    private PDU newGetPDU(Class scalarClass) {
-        PDU pdu = new PDU();
-        pdu.setType(PDU.GET);
-        Field[] propFields = SnmpServiceUtil.getPropFields(scalarClass);
-        for (Field propField : propFields) {
-            MibObjectType mib = propField.getAnnotation(MibObjectType.class);
-            pdu.add(new VariableBinding(new OID(mib.oid())));
-        }
-        return pdu;
-    }
-    
-    private PDU newGetPDU(Class scalarClass, String[] fields)
-            throws SecurityException, NoSuchFieldException {
-        PDU pdu = new PDU();
-        pdu.setType(PDU.GET);
-        for (String fn : fields) {
-            Field field = scalarClass.getDeclaredField(fn);
-            MibObjectType mib = field.getAnnotation(MibObjectType.class);
-            pdu.add(new VariableBinding(new OID(mib.oid())));
-        }
-        return pdu;
-    }
-    
-    private <T> T get(Class<T> scalarClass, PDU reqPDU) throws IOException,
-    SnmpException, SnmpAnnotationException {
+    private <T> T get(Class<T> scalarClass, PDU requestPDU) throws IOException, SnmpException, SnmpAnnotationException {
         try {
-            checkReqError(reqPDU);
-            ResponseEvent event = getSnmp().get(reqPDU, snmpSession.getReadTarget());
+            checkRequestError(requestPDU);
+            ResponseEvent event = getSnmp().get(requestPDU, snmpSession.getReadTarget());
             checkEventError(event);
-            PDU resPDU = event.getResponse();
-            checkResError(resPDU);
+            PDU responsePDU = event.getResponse();
+            checkResponseError(responsePDU);
             T mibObj = scalarClass.newInstance();
-            fillProperties(mibObj, resPDU);
+            populateProperties(mibObj, responsePDU);
             return mibObj;
         } catch (InstantiationException e) {
             throw new SnmpAnnotationException(e);
@@ -187,101 +143,23 @@ public class Snmp4JService extends AbstractSnmp4JService implements SnmpService 
         }
     }
     
-    private PDU newGetEntryPDU(Object entry) throws IllegalArgumentException,
-    IllegalAccessException {
-        PDU pdu = new PDU();
-        pdu.setType(PDU.GET);
-        OID indexOid = buildIndexOid(entry);
-        Field[] propFields = SnmpServiceUtil.getPropFields(entry.getClass());
-        for (Field propField : propFields) {
-            MibObjectType mib = propField.getAnnotation(MibObjectType.class);
-            OID oid = new OID(mib.oid());
-            if (indexOid != null) {
-                oid.append(indexOid);
-            }
-            pdu.add(new VariableBinding(oid));
-        }
-        return pdu;
-    }
-    
-    private PDU newGetNextFirstEntryPDU(Class entryClass) {
-        PDU pdu = new PDU();
-        pdu.setType(PDU.GETNEXT);
-        Field[] propFields = SnmpServiceUtil.getPropFields(entryClass);
-        for (Field propField : propFields) {
-            MibObjectType mib = propField.getAnnotation(MibObjectType.class);
-            pdu.add(new VariableBinding(new OID(mib.oid())));
-        }
-        if (pdu.size() <= 0) {
-            // in some mib, there are only indices.
-            Field[] indexFields = getIndexFields(entryClass);
-            if (indexFields.length > 0) {
-                MibObjectType mot = indexFields[0]
-                        .getAnnotation(MibObjectType.class);
-                pdu.add(new VariableBinding(new OID(mot.oid())));
-            }
-        }
-        return pdu;
-    }
-    
-    private PDU newGetNextEntryPDU(Object entry)
-            throws IllegalArgumentException, IllegalAccessException {
-        PDU pdu = newGetEntryPDU(entry);
-        pdu.setType(PDU.GETNEXT);
-        if (pdu.size() <= 0) {
-            OID indexOid = buildIndexOid(entry);
-            Field[] indexFields = getIndexFields(entry.getClass());
-            if (indexFields.length > 0) {
-                MibObjectType mib = indexFields[0]
-                        .getAnnotation(MibObjectType.class);
-                OID oid = new OID(mib.oid());
-                if (indexOid != null) {
-                    oid.append(indexOid);
-                }
-                pdu.add(new VariableBinding(oid));
-            }
-        }
-        return pdu;
-    }
-    
-    private PDU newGetEntryPDU(Object entry, String[] fields)
-            throws IllegalArgumentException, IllegalAccessException,
-            SecurityException, NoSuchFieldException {
-        PDU pdu = new PDU();
-        pdu.setType(PDU.GET);
-        OID indexOid = buildIndexOid(entry);
-        for (String fn : fields) {
-            Field field = entry.getClass().getDeclaredField(fn);
-            MibObjectType mib = field.getAnnotation(MibObjectType.class);
-            OID oid = new OID(mib.oid());
-            if (indexOid != null) {
-                oid.append(indexOid);
-            }
-            pdu.add(new VariableBinding(oid));
-        }
-        return pdu;
-    }
-    
-    private <T> T getEntryByIndex(T entry, PDU reqPDU)
-            throws IOException, SnmpException, InstantiationException,
-            IllegalAccessException {
-        checkReqError(reqPDU);
-        ResponseEvent event = getSnmp().get(reqPDU, snmpSession.getReadTarget());
+    private <T> T getEntryByIndex(T entry, PDU requestPDU) throws IOException, SnmpException, InstantiationException, IllegalAccessException {
+        checkRequestError(requestPDU);
+        ResponseEvent event = getSnmp().get(requestPDU, snmpSession.getReadTarget());
         checkEventError(event);
-        PDU resPDU = event.getResponse();
-        checkResError(resPDU);
-        fillProperties(entry, resPDU);
+        PDU responsePDU = event.getResponse();
+        checkResponseError(responsePDU);
+        populateProperties(entry, responsePDU);
         return entry;
     }
     
-    private <T> T buildEntryWithIndices(Class<T> entryClass, Serializable indices)
-            throws InstantiationException, IllegalAccessException {
+    private <T> T buildEntryWithIndexes(Class<T> entryClass, Serializable indexes) throws InstantiationException, IllegalAccessException {
         T entry = entryClass.newInstance();
-        Field[] indexFields = getIndexFields(entryClass);
+        Field[] indexFields = SnmpServiceUtil.getIndexFields(entryClass);
         if (indexFields.length == 1) {
-            indexFields[0].set(entry, indices);
+            indexFields[0].set(entry, indexes);
         } else {
-            Serializable[] indicesArray = (Serializable[]) indices;
+            Serializable[] indicesArray = (Serializable[]) indexes;
             for (int i = 0; i < indexFields.length; i++) {
                 indexFields[i].set(entry, indicesArray[i]);
             }
@@ -289,28 +167,13 @@ public class Snmp4JService extends AbstractSnmp4JService implements SnmpService 
         return entry;
     }
     
-    
-    
-    
-    
-   
-
-    public SnmpSession getSnmpSession() {
-        return snmpSession;
-    }
-
-    public void setSnmpSession(SnmpSession snmpSession) {
-        this.snmpSession = snmpSession;
-    }
-
     @Override
     protected SmiTypeProvider getSmiTypeProvider() {
         return ((Snmp4JSession)snmpSession).getSmiTypeProvider();
     }
-
+    
     @Override
     protected SnmpErrorMsgProvider getSnmpErrorMsgProvider() {
         return ((Snmp4JSession)snmpSession).getSnmpErrorMsgProvider();
     }
-    
 }

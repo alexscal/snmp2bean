@@ -19,17 +19,10 @@ import java.util.Map;
 
 public interface SnmpTrapMsg {
     
-    /**
-     *  Message type.
-     */
     String MSG_TYPE = "msg_type";
-    /**
-     *  Ipaddress of the node that sends the trap.
-     */
+    
     String NODE_ADDR = "node_addr";
-    /**
-     * Trap OID
-     */
+    
     String TRAP_OID = "trap_oid";
     
     /**
@@ -53,6 +46,7 @@ public interface SnmpTrapMsg {
             },
     */
     String GENERIC_TRAP = "generic_trap";
+    
     /**
      * V1 Trap specific-trap
      */
@@ -64,24 +58,11 @@ public interface SnmpTrapMsg {
     String TIME_STAMP = "time_stamp";
 
     String RECEIVED_TIME = "received_time";
-    /**
-     *  Get the ip address of the node that sends the trap.
-     *  @return peer address
-     */
+   
     String getPeerAddr();
 
-    /**
-     * Get the trap oid. 
-     * 
-     * @return trap oid.
-     */
     String getTrapOid();
-    /**
-     * Get the value map.
-     * 
-     * @return value map
-     */
+    
     Map<String, Object> toMap();
-
     
 }

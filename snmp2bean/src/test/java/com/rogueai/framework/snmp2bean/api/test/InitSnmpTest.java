@@ -18,35 +18,24 @@ package com.rogueai.framework.snmp2bean.api.test;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
-import com.rogueai.framework.snmp2bean.api.SnmpClientFacade;
 import com.rogueai.framework.snmp2bean.api.SnmpService;
-import com.rogueai.framework.snmp2bean.api.SnmpSession;
-import com.rogueai.framework.snmp2bean.api.SnmpSessionFactory;
-import com.rogueai.framework.snmp2bean.api.SnmpTargetFactory;
+import com.rogueai.framework.snmp2bean.api.SnmpServiceFactory;
 import com.rogueai.framework.snmp2bean.api.snmp4J.impl.Snmp4JClientFacade;
-import com.rogueai.framework.snmp2bean.api.snmp4J.impl.Snmp4JService;
 
 
 public abstract class InitSnmpTest {
-    
-    public static SnmpSession session;
     
     public static SnmpService service;
 
     @BeforeClass
     public static void setUp() throws Exception {
-        SnmpClientFacade facade = new Snmp4JClientFacade();
-        SnmpSessionFactory sessionFactory = facade.getSnmpSessionFactory();
-        SnmpTargetFactory targetFactory = facade.getSnmpTargetFactory();
-        session = sessionFactory.newSnmpSession(targetFactory.newSnmpTarget("127.0.0.1", 161));
-        service = facade.getSnmpService();
-        ((Snmp4JService)service).setSnmpSession(session);
-        
+        SnmpServiceFactory snmpServiceFactory = new SnmpServiceFactory(new Snmp4JClientFacade());
+        service = snmpServiceFactory.builSnmpService("127.0.0.1", 161, "public");
     }
     
     @AfterClass
     public static void tearDown() throws Exception {
-        session.close();
+        service.close();
     }
     
 }

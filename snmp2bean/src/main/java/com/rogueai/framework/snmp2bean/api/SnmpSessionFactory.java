@@ -19,6 +19,6 @@ import java.io.IOException;
 
 public interface SnmpSessionFactory {
  
-    SnmpSession newSnmpSession(SnmpTarget target) throws IOException;
+    SnmpSession createSnmpSession(SnmpTarget target) throws IOException;
     
 }

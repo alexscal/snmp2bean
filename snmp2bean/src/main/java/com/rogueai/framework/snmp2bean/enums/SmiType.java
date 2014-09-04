@@ -16,7 +16,16 @@
 package com.rogueai.framework.snmp2bean.enums;
 
 public enum SmiType {
-    INTEGER, INTEGER32,
-    UNSIGNED32, COUNTER32, GAUGE32, TIMETICKS,
-    COUNTER64, DISPLAY_STRING, OCTET_STRING, OPAQUE, OID, IPADDRESS, 
+    INTEGER, 
+    INTEGER32, 
+    UNSIGNED32, 
+    COUNTER32, 
+    COUNTER64, 
+    GAUGE32, 
+    TIMETICKS,
+    DISPLAY_STRING, 
+    OCTET_STRING, 
+    OPAQUE, 
+    OID, 
+    IPADDRESS, 
 }

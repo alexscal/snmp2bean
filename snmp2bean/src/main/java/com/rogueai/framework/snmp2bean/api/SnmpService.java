@@ -32,5 +32,7 @@ public interface SnmpService {
 
     <T> T getByIndex(Class<T> entryClass, Serializable indices) throws IOException, SnmpException, SnmpAnnotationException;
 
-    <T> T getByIndex(Class<T> entryClass, Serializable indices, String[] fields) throws IOException, SnmpException, SnmpAnnotationException;    
+    <T> T getByIndex(Class<T> entryClass, Serializable indices, String[] fields) throws IOException, SnmpException, SnmpAnnotationException;
+    
+    void close() throws IOException;
 }

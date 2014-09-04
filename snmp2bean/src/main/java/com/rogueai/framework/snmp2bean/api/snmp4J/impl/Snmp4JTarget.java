@@ -35,13 +35,13 @@ public class Snmp4JTarget implements SnmpTarget {
     
     private String writeCommunity = "private";
     
-    public Snmp4JTarget(String ip, int port) {
+    public Snmp4JTarget(String ip) {
         this.ip = ip;
-        this.port = port;
     }
     
-    public Snmp4JTarget(String ip) {
-        this(ip, 161);
+    public Snmp4JTarget(String ip, int port) {
+        this(ip);
+        this.port = port;
     }
     
     public Target getReadTarget() {
@@ -92,14 +92,13 @@ public class Snmp4JTarget implements SnmpTarget {
         this.writeCommunity = writeCommunity;
     }
     
-    private Target getTarget(String comm) {
+    private Target getTarget(String communityString) {
         if(version == V1 || version == V2C) {
             Address address = GenericAddress.parse("udp:" + ip + "/" + port);
-            CommunityTarget target = new CommunityTarget(address, new OctetString(comm));
+            CommunityTarget target = new CommunityTarget(address, new OctetString(communityString));
             target.setVersion(version);
             return target;
         }
-        //TODO: not support snmp v3 now.
-        throw new RuntimeException("Do not support snmpv3 now!");       
+        throw new RuntimeException("Snmpv3 is not supported");       
     }
 }

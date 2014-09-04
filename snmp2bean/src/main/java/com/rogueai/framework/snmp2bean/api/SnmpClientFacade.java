@@ -21,7 +21,9 @@ public interface SnmpClientFacade {
     
     SnmpTargetFactory getSnmpTargetFactory();
     
-    SnmpService getSnmpService();
+    SnmpService getSnmpService(SnmpSession snmpSession);
+
+    SnmpServiceWrite getSnmpServiceWrite(SnmpSession snmpSession);
     
 }
 

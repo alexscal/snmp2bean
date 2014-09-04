@@ -18,8 +18,11 @@ package com.rogueai.framework.snmp2bean.api.snmp4J.impl;
 import com.rogueai.framework.snmp2bean.api.SnmpClientFacade;
 import com.rogueai.framework.snmp2bean.api.SnmpService;
 import com.rogueai.framework.snmp2bean.api.SnmpServiceWrite;
+import com.rogueai.framework.snmp2bean.api.SnmpSession;
 import com.rogueai.framework.snmp2bean.api.SnmpSessionFactory;
 import com.rogueai.framework.snmp2bean.api.SnmpTargetFactory;
+import com.rogueai.framework.snmp2bean.api.snmp4J.impl.factory.Snmp4JSessionFactory;
+import com.rogueai.framework.snmp2bean.api.snmp4J.impl.factory.Snmp4JTargetFactory;
 
 public class Snmp4JClientFacade implements SnmpClientFacade {
     
@@ -31,12 +34,12 @@ public class Snmp4JClientFacade implements SnmpClientFacade {
     
     private SnmpServiceWrite snmpServiceWrite = null;
     
-    public SnmpServiceWrite getSnmpServiceWrite() {
-        return snmpServiceWrite == null ? new Snmp4JServiceWrite() : snmpServiceWrite;
+    public SnmpServiceWrite getSnmpServiceWrite(SnmpSession snmpSession) {
+        return snmpServiceWrite == null ? new Snmp4JServiceWrite(snmpSession) : snmpServiceWrite;
     }
     
-    public SnmpService getSnmpService() {
-        return snmpService == null ? new Snmp4JService() : snmpService;
+    public SnmpService getSnmpService(SnmpSession snmpSession) {
+        return snmpService == null ? new Snmp4JService(snmpSession) : snmpService;
     }
     
     public SnmpSessionFactory getSnmpSessionFactory() {

@@ -22,10 +22,10 @@ import com.rogueai.framework.snmp2bean.exception.SnmpException;
 
 public interface SnmpServiceWrite {
     
-    void set(Object object) throws IOException, SnmpException,  SnmpAnnotationException;
+    void set(Object object) throws IOException, SnmpException, SnmpAnnotationException;
 
-    void create(Object entry) throws IOException, SnmpException,  SnmpAnnotationException;
+    void create(Object entry) throws IOException, SnmpException, SnmpAnnotationException;
 
-    void delete(Object entry) throws IOException, SnmpException,  SnmpAnnotationException;
+    void delete(Object entry) throws IOException, SnmpException, SnmpAnnotationException;
     
 }

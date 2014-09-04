@@ -86,6 +86,4 @@ public class SystemInfo {
     public void setSysUpTime(long sysUpTime) {
         this.sysUpTime = sysUpTime;
     }
-
-    
 }

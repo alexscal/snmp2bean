@@ -30,21 +30,25 @@ import org.snmp4j.smi.VariableBinding;
 import com.rogueai.framework.snmp2bean.annotation.MibObjectType;
 import com.rogueai.framework.snmp2bean.annotation.RowStatus;
 import com.rogueai.framework.snmp2bean.api.SnmpServiceWrite;
+import com.rogueai.framework.snmp2bean.api.SnmpSession;
 import com.rogueai.framework.snmp2bean.api.util.SnmpServiceUtil;
 import com.rogueai.framework.snmp2bean.exception.SnmpAnnotationException;
 import com.rogueai.framework.snmp2bean.exception.SnmpException;
 
 public class Snmp4JServiceWrite extends Snmp4JService implements SnmpServiceWrite {
     
-    public void delete(Object entry) throws IOException, SnmpException,
-    SnmpAnnotationException {
+    public Snmp4JServiceWrite(SnmpSession snmpSession) {
+        super(snmpSession);
+    }
+
+    public void delete(Object entry) throws IOException, SnmpException, SnmpAnnotationException {
         try {
-            PDU reqPDU = newDeletPDU(entry);
-            checkReqError(reqPDU);
-            ResponseEvent event = getSnmp().set(reqPDU, snmpSession.getWriteTarget());
+            PDU requestPDU = buildDeletPDU(entry);
+            checkRequestError(requestPDU);
+            ResponseEvent event = getSnmp().set(requestPDU, snmpSession.getWriteTarget());
             checkEventError(event);
-            PDU resPDU = event.getResponse();
-            checkResError(resPDU);
+            PDU responsePDU = event.getResponse();
+            checkResponseError(responsePDU);
         } catch (IllegalArgumentException e) {
             throw new SnmpAnnotationException(e);
         } catch (IllegalAccessException e) {
@@ -52,21 +56,20 @@ public class Snmp4JServiceWrite extends Snmp4JService implements SnmpServiceWrit
         }
     }
     
-    public void set(Object entry) throws IOException, SnmpException,
-    SnmpAnnotationException {
+    public void set(Object entry) throws IOException, SnmpException, SnmpAnnotationException {
         try {
-            PDU reqPDU = newSetPDU(entry);
-            checkReqError(reqPDU);
-            ResponseEvent event = getSnmp().set(reqPDU, snmpSession.getWriteTarget());
+            PDU requestPDU = buildSetPDU(entry);
+            checkRequestError(requestPDU);
+            ResponseEvent event = getSnmp().set(requestPDU, snmpSession.getWriteTarget());
             checkEventError(event);
-            PDU resPDU = event.getResponse();
-            checkResError(resPDU);
+            PDU responsePDU = event.getResponse();
+            checkResponseError(responsePDU);
         } catch (InstantiationException e) {
             throw new SnmpAnnotationException(e);
         } catch (IllegalAccessException e) {
             throw new SnmpAnnotationException(e);
         } catch (IllegalArgumentException e) {
-            e.printStackTrace();
+            throw new SnmpAnnotationException(e);
         } catch (SecurityException e) {
             throw new SnmpAnnotationException(e);
         } catch (NoSuchMethodException e) {
@@ -76,15 +79,14 @@ public class Snmp4JServiceWrite extends Snmp4JService implements SnmpServiceWrit
         }
     }
     
-    public void create(Object entry) throws IOException, SnmpException,
-    SnmpAnnotationException {
+    public void create(Object entry) throws IOException, SnmpException, SnmpAnnotationException {
         try {
-            PDU reqPDU = newCreatePDU(entry);
-            checkReqError(reqPDU);
-            ResponseEvent event = getSnmp().set(reqPDU, snmpSession.getWriteTarget());
+            PDU requestPDU = buildCreatePDU(entry);
+            checkRequestError(requestPDU);
+            ResponseEvent event = getSnmp().set(requestPDU, snmpSession.getWriteTarget());
             checkEventError(event);
-            PDU resPDU = event.getResponse();
-            checkResError(resPDU);
+            PDU responsePDU = event.getResponse();
+            checkResponseError(responsePDU);
         } catch (IllegalArgumentException e) {
             throw new SnmpAnnotationException(e);
         } catch (IllegalAccessException e) {
@@ -100,16 +102,13 @@ public class Snmp4JServiceWrite extends Snmp4JService implements SnmpServiceWrit
         }
     }
     
-    private VariableBinding newDeleteVB(Object entry)
-            throws IllegalAccessException, SnmpAnnotationException {
-        OID indexOid = buildIndexOid(entry);
+    private VariableBinding buildDeleteVariableBinding(Object entry) throws IllegalAccessException, SnmpAnnotationException {
+        OID indexOid = pduBuilder.buildIndexOID(entry);
         if (indexOid == null)
-            throw new SnmpAnnotationException(new NullPointerException(
-                    "No index oid."));
+            throw new SnmpAnnotationException(new NullPointerException("No index oid."));
         RowStatus rowStatus = entry.getClass().getAnnotation(RowStatus.class);
         if (rowStatus == null)
-            throw new SnmpAnnotationException(new NullPointerException(
-                    "No RowStatus Annotation."));
+            throw new SnmpAnnotationException(new NullPointerException("No RowStatus Annotation."));
         OID oid = new OID(rowStatus.oid());
         oid.append(indexOid);
         Integer32 var = new Integer32(rowStatus.delete());
@@ -117,19 +116,14 @@ public class Snmp4JServiceWrite extends Snmp4JService implements SnmpServiceWrit
         return vb;
     }
     
-    
-    private PDU newCreatePDU(Object entry) throws IllegalArgumentException,
-    SecurityException, IllegalAccessException, NoSuchMethodException,
-    InstantiationException, InvocationTargetException,
-    SnmpAnnotationException {
-        PDU pdu = newSetPDU(entry);
-        pdu.add(newCreateVB(entry));
+    private PDU buildCreatePDU(Object entry) throws IllegalArgumentException, SecurityException, IllegalAccessException, NoSuchMethodException, InstantiationException, InvocationTargetException, SnmpAnnotationException {
+        PDU pdu = buildSetPDU(entry);
+        pdu.add(buildCreateVariableBinding(entry));
         return pdu;
     }
     
-    private VariableBinding newCreateVB(Object entry)
-            throws IllegalAccessException, SnmpAnnotationException {
-        OID indexOid = buildIndexOid(entry);
+    private VariableBinding buildCreateVariableBinding(Object entry) throws IllegalAccessException, SnmpAnnotationException {
+        OID indexOid = pduBuilder.buildIndexOID(entry);
         checkIndexOid(indexOid);
         RowStatus rowStatus = entry.getClass().getAnnotation(RowStatus.class);
         checkRowStatusAnnotation(rowStatus);
@@ -139,12 +133,10 @@ public class Snmp4JServiceWrite extends Snmp4JService implements SnmpServiceWrit
         return new VariableBinding(oid, var);
     }
     
-    private PDU newSetPDU(Object entry) throws IllegalArgumentException,
-    IllegalAccessException, SecurityException, NoSuchMethodException,
-    InstantiationException, InvocationTargetException {
+    private PDU buildSetPDU(Object entry) throws IllegalArgumentException, IllegalAccessException, SecurityException, NoSuchMethodException, InstantiationException, InvocationTargetException {
         PDU pdu = new PDU();
         pdu.setType(PDU.SET);
-        OID indexOid = buildIndexOid(entry);
+        OID indexOid = pduBuilder.buildIndexOID(entry);
         Field[] writePropFields = SnmpServiceUtil.getWritePropFields(entry.getClass());
         for (Field writeField : writePropFields) {
             writeField.setAccessible(true);
@@ -155,19 +147,16 @@ public class Snmp4JServiceWrite extends Snmp4JService implements SnmpServiceWrit
             }
             Class type = writeField.getType();
             Constructor constructor = getSmiTypeProvider().getSmiType(mot.smiType()).getConstructor(new Class[] { type });
-            Variable variable = (Variable) constructor
-                    .newInstance(new Object[] { writeField.get(entry) });
+            Variable variable = (Variable) constructor.newInstance(new Object[] { writeField.get(entry) });
             pdu.add(new VariableBinding(oid, variable));
         }
         return pdu;
     }
     
-    private PDU newDeletPDU(Object entry) throws IllegalArgumentException,
-    IllegalAccessException, SnmpAnnotationException {
+    private PDU buildDeletPDU(Object entry) throws IllegalArgumentException, IllegalAccessException, SnmpAnnotationException {
         PDU pdu = new PDU();
         pdu.setType(PDU.SET);
-        pdu.add(newDeleteVB(entry));
+        pdu.add(buildDeleteVariableBinding(entry));
         return pdu;
     }
-    
 }

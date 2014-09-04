@@ -13,13 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package com.rogueai.framework.snmp2bean.api.snmp4J.impl;
+package com.rogueai.framework.snmp2bean.api.snmp4J.impl.factory;
 
 import java.io.IOException;
 
 import com.rogueai.framework.snmp2bean.api.SnmpSession;
 import com.rogueai.framework.snmp2bean.api.SnmpSessionFactory;
 import com.rogueai.framework.snmp2bean.api.SnmpTarget;
+import com.rogueai.framework.snmp2bean.api.snmp4J.impl.Snmp4JErrorMsgProvider;
+import com.rogueai.framework.snmp2bean.api.snmp4J.impl.Snmp4JSession;
+import com.rogueai.framework.snmp2bean.api.snmp4J.impl.Snmp4JSmiTypeProvider;
 
 public class Snmp4JSessionFactory implements SnmpSessionFactory {
     
@@ -32,7 +35,7 @@ public class Snmp4JSessionFactory implements SnmpSessionFactory {
         errorMsgProvider = new Snmp4JErrorMsgProvider();
     }
 
-    public SnmpSession newSnmpSession(SnmpTarget target) throws IOException {
+    public SnmpSession createSnmpSession(SnmpTarget target) throws IOException {
         Snmp4JSession session = new Snmp4JSession(target);
         session.setSmiTypeProvider(typeProvider);
         session.setSnmpErrorMsgProvider(errorMsgProvider);

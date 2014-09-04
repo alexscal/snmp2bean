@@ -17,8 +17,8 @@ package com.rogueai.framework.snmp2bean.api;
 
 public interface SnmpTargetFactory {
 
-    SnmpTarget newSnmpTarget(String ip);
+    SnmpTarget createSnmpTarget(String ip);
     
-    SnmpTarget newSnmpTarget(String ip, int port);
+    SnmpTarget createSnmpTarget(String ip, Integer port);
     
 }

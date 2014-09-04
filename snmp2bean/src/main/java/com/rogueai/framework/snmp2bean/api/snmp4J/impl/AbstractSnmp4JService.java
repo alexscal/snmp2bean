@@ -16,9 +16,7 @@
 package com.rogueai.framework.snmp2bean.api.snmp4J.impl;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Vector;
 
 import org.snmp4j.PDU;
@@ -48,35 +46,35 @@ public abstract class AbstractSnmp4JService {
     
     protected SnmpSession snmpSession;
     
+    protected PduBuilder pduBuilder;
+    
     protected boolean isTableEnd(OID firstReqOid, OID firstRespOid) {
         // TODO: END OF MIB
         return !firstRespOid.startsWith(firstReqOid);
     }
     
-    protected void checkReqError(PDU reqPDU) {
-        if (reqPDU.size() == 0) {
+    protected void checkRequestError(PDU requestPDU) {
+        if (requestPDU.size() == 0) {
             throw new IllegalArgumentException("No declarative mib object.");
         }
     }
     
-    protected int[] extractIndexOids(OID firstRespOid, OID firstReqOid) {
-        int[] respOids = firstRespOid.getValue();
-        int[] reqOids = firstReqOid.getValue();
+    protected int[] extractIndexOids(OID firstResponseOID, OID firstRequestOID) {
+        int[] respOids = firstResponseOID.getValue();
+        int[] reqOids = firstRequestOID.getValue();
         int[] indexOids = new int[respOids.length - reqOids.length];
-        System.arraycopy(respOids, reqOids.length, indexOids, 0,
-                indexOids.length);
+        System.arraycopy(respOids, reqOids.length, indexOids, 0, indexOids.length);
         return indexOids;
     }
     
-    protected void checkResError(PDU resPDU) throws SnmpException {
-        if (resPDU == null) {
+    protected void checkResponseError(PDU responsePDU) throws SnmpException {
+        if (responsePDU == null) {
             SnmpException e = new SnmpException(SnmpException.NO_RESPONSE_PDU, -1);
             e.setSnmpErrorMsgProvider(getSnmpErrorMsgProvider());
             throw e;
         }
-        if (resPDU.getErrorStatus() != 0) {
-            SnmpException e = new SnmpException(resPDU.getErrorStatus(), resPDU
-                    .getErrorIndex());
+        if (responsePDU.getErrorStatus() != 0) {
+            SnmpException e = new SnmpException(responsePDU.getErrorStatus(), responsePDU.getErrorIndex());
             e.setSnmpErrorMsgProvider(getSnmpErrorMsgProvider());
             throw e;
         }
@@ -92,132 +90,9 @@ public abstract class AbstractSnmp4JService {
     
     
     
-    
-    protected Field[] getIndexFields(Class clazz) {
-        Field[] fields = clazz.getDeclaredFields();
-        List<Field> list = new ArrayList<Field>();
-        for (int i = 0; i < fields.length; i++) {
-            if (fields[i].isAnnotationPresent(MibIndex.class)) {
-                fields[i].setAccessible(true);
-                list.add(fields[i]);
-            }
-        }
-        Field[] indexFields = list.toArray(new Field[list.size()]);
-        // bubble sort.
-        for (int i = 0; i < indexFields.length; i++) {
-            for (int j = i + 1; j < indexFields.length; j++) {
-                Field top = indexFields[i];
-                int no = top.getAnnotation(MibIndex.class).no();
-                Field another = indexFields[j];
-                int anotherNo = another.getAnnotation(MibIndex.class).no();
-                if (anotherNo < no) {
-                    indexFields[i] = another;
-                    indexFields[j] = top;
-                }
-            }
-        }
-        return indexFields;
-    }
-    
-
-    
-    protected OID buildIndexOid(Object entry) throws IllegalArgumentException,
-    IllegalAccessException {
-        Class clazz = entry.getClass();
-        Field[] indexFields = getIndexFields(clazz);
-        OID oid = null;
-        for (Field indexField : indexFields) {
-            indexField.setAccessible(true);
-            Object value = indexField.get(entry);
-            MibIndex miAnnotation = indexField.getAnnotation(MibIndex.class);
-            int length = miAnnotation.length();
-            if (length == MibIndex.VARSTR_WITH_LENGTH) {
-                byte[] bytes = ((String) value).getBytes();
-                int[] integers = new int[bytes.length + 1];
-                integers[0] = bytes.length;
-                int i = 1;
-                for (byte b : bytes) {
-                    integers[i++] = b;
-                }
-                oid = appendRawOids(oid, integers);
-            } else if (length == MibIndex.VARSTR_WITHOUT_LENGTH) {
-                byte[] bytes = ((String) value).getBytes();
-                int[] integers = new int[bytes.length];
-                int i = 0;
-                for (byte b : bytes) {
-                    integers[i++] = b;
-                }
-                oid = appendRawOids(oid, integers);
-            } else if (length == 1) {
-                MibObjectType mot = indexField
-                        .getAnnotation(MibObjectType.class);
-                Class smiTypeClass = getSmiTypeProvider().getSmiType(
-                        mot.smiType());
-                if (smiTypeClass.equals(Integer32.class)) {
-                    int v = ((Integer) value).intValue();
-                    oid = appendRawOids(oid, new int[] { v });
-                } else if (UnsignedInteger32.class
-                        .isAssignableFrom(smiTypeClass)) {
-                    int v = (int) ((Long) value).longValue();
-                    oid = appendRawOids(oid, new int[] { v });
-                } else {
-                    throw new RuntimeException("Index length should not be 1."
-                            + indexField);
-                }
-            } else if (length >= 1) {
-                MibObjectType mot = indexField
-                        .getAnnotation(MibObjectType.class);
-                SmiType smiType = mot.smiType();
-                if (smiType == SmiType.OID) {
-                    if (oid == null)
-                        oid = new OID();
-                    oid.append((String) value);
-                } else if (smiType == SmiType.DISPLAY_STRING) {
-                    byte[] bytes = ((String) value).getBytes();
-                    int[] integers = new int[length];
-                    for (int i = 0; i < integers.length; i++) {
-                        integers[i] = (int) bytes[i];
-                    }
-                    oid = appendRawOids(oid, integers);
-                } else if (smiType == SmiType.OCTET_STRING) {
-                    byte[] bytes = ((byte[]) value);
-                    int[] integers = new int[length];
-                    for (int i = 0; i < integers.length; i++) {
-                        integers[i] = (int) bytes[i];
-                    }
-                    oid = appendRawOids(oid, integers);
-                } else if (smiType == SmiType.IPADDRESS) {
-                    String[] strBytes = ((String) value).split("\\.");
-                    if (strBytes.length != 4)
-                        throw new RuntimeException(
-                                "Assert faild. IpAddres length must be 1.");
-                    int[] integers = new int[strBytes.length];
-                    for (int i = 0; i < integers.length; i++) {
-                        integers[i] = Integer.parseInt(strBytes[i]);
-                    }
-                    oid = appendRawOids(oid, integers);
-                } else {
-                    throw new RuntimeException("Unknow smiType: " + smiType);
-                }
-            } else {
-                throw new RuntimeException(
-                        "Assert Failed! Unknow index length.");
-            }
-        }
-        return oid;
-    }
-    
-    protected OID appendRawOids(OID oid, int[] integers) {
-        if (oid == null)
-            return new OID(integers);
-        oid.append(new OID(integers));
-        return oid;
-    }
-    
-    protected void fillIndices(Object entry, int[] indexOids)
-            throws IllegalArgumentException, IllegalAccessException {
-        Class clazz = entry.getClass();
-        Field[] indexFields = getIndexFields(clazz);
+    protected void populateOidIndexes(Object entry, int[] indexOids) throws IllegalArgumentException, IllegalAccessException {
+        Class<? extends Object> clazz = entry.getClass();
+        Field[] indexFields = SnmpServiceUtil.getIndexFields(clazz);
         for (int i = 0, j = 0; i < indexFields.length && j < indexOids.length; i++) {
             Field indexField = indexFields[i];
             indexField.setAccessible(true);
@@ -236,20 +111,16 @@ public abstract class AbstractSnmp4JService {
             } else if (length == 1) {
                 MibObjectType mot = indexField
                         .getAnnotation(MibObjectType.class);
-                Class smiTypeClass = getSmiTypeProvider().getSmiType(
-                        mot.smiType());
+                Class<?> smiTypeClass = getSmiTypeProvider().getSmiType(mot.smiType());
                 if (smiTypeClass.equals(Integer32.class)) {
                     indexField.set(entry, indexOids[j++]);
-                } else if (UnsignedInteger32.class
-                        .isAssignableFrom(smiTypeClass)) {
+                } else if (UnsignedInteger32.class.isAssignableFrom(smiTypeClass)) {
                     indexField.set(entry, (long) indexOids[j++]);
                 } else {
-                    throw new RuntimeException("Index length should not be 1."
-                            + indexField);
+                    throw new RuntimeException("Index length should not be 1." + indexField);
                 }
             } else if (length >= 1) {
-                MibObjectType mot = indexField
-                        .getAnnotation(MibObjectType.class);
+                MibObjectType mot = indexField.getAnnotation(MibObjectType.class);
                 SmiType smiType = mot.smiType();
                 if (smiType == SmiType.OID) {
                     int[] oidValue = new int[length];
@@ -265,9 +136,7 @@ public abstract class AbstractSnmp4JService {
                     indexField.set(entry, bytes);
                 } else if (smiType == SmiType.IPADDRESS) {
                     if (length != 4)
-                        throw new RuntimeException(
-                                "Asser Failed, IpAddress length must be 4. length="
-                                        + length);
+                        throw new RuntimeException("Asser Failed, IpAddress length must be 4. length=" + length);
                     StringBuffer sb = new StringBuffer();
                     sb.append(indexOids[j]).append('.');
                     sb.append(indexOids[j + 1]).append('.');
@@ -279,15 +148,12 @@ public abstract class AbstractSnmp4JService {
                 }
                 j += length;
             } else {
-                throw new RuntimeException(
-                        "Assert Failed! Unknow index length.");
+                throw new RuntimeException("Assert Failed! Unknow index length.");
             }
         }
     }
-    
-    
-    
-    protected void fillProperties(Object object, PDU pdu)
+      
+    protected void populateProperties(Object object, PDU pdu)
             throws InstantiationException, IllegalAccessException {
         Field[] propFields = SnmpServiceUtil.getPropFields(object.getClass());
         Vector<? extends VariableBinding> variableBindings = pdu.getVariableBindings();
@@ -308,8 +174,8 @@ public abstract class AbstractSnmp4JService {
         }
     }
     
-    protected Variable findVariableByOid(OID oid, Vector variableBindings) {
-        for (Iterator it = variableBindings.iterator(); it.hasNext();) {
+    protected Variable findVariableByOid(OID oid, Vector<?> variableBindings) {
+        for (Iterator<?> it = variableBindings.iterator(); it.hasNext();) {
             VariableBinding vb = (VariableBinding) it.next();
             if (vb.getOid().startsWith(oid)) {
                 return vb.getVariable();
@@ -318,8 +184,8 @@ public abstract class AbstractSnmp4JService {
         return null;
     }
     
-    protected VariableBinding findVariableBindingByOid(OID oid, Vector variableBindings) {
-        for (Iterator it = variableBindings.iterator(); it.hasNext();) {
+    protected VariableBinding findVariableBindingByOid(OID oid, Vector<?> variableBindings) {
+        for (Iterator<?> it = variableBindings.iterator(); it.hasNext();) {
             VariableBinding vb = (VariableBinding) it.next();
             if (vb.getOid().startsWith(oid)) {
                 return vb;
@@ -349,6 +215,6 @@ public abstract class AbstractSnmp4JService {
 
     public void setSnmpSession(SnmpSession snmpSession) {
         this.snmpSession = snmpSession;
+        pduBuilder = new PduBuilder(getSmiTypeProvider());
     }
-    
 }
