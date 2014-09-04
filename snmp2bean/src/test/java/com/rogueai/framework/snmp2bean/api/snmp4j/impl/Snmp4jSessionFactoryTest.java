@@ -15,7 +15,6 @@
  *******************************************************************************/
 package com.rogueai.framework.snmp2bean.api.snmp4j.impl;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -36,7 +35,6 @@ public class Snmp4jSessionFactoryTest extends InitSnmpTest {
         try {
             SystemInfo sysMIB = service.get(SystemInfo.class);
             assertNotNull(sysMIB.getSysObjectID());
-            assertEquals("Alessandro Scanu <alessandro.scanu@vce.com>", sysMIB.getSysContact());            
         } catch (Exception e) {
             e.printStackTrace();
             fail();
