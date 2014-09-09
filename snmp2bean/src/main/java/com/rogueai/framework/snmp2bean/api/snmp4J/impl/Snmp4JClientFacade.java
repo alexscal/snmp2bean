@@ -22,6 +22,7 @@ import com.rogueai.framework.snmp2bean.api.SnmpSession;
 import com.rogueai.framework.snmp2bean.api.SnmpSessionFactory;
 import com.rogueai.framework.snmp2bean.api.SnmpTargetFactory;
 import com.rogueai.framework.snmp2bean.api.snmp4J.impl.factory.Snmp4JSessionFactory;
+import com.rogueai.framework.snmp2bean.api.snmp4J.impl.factory.Snmp4JSimulationSessionFactory;
 import com.rogueai.framework.snmp2bean.api.snmp4J.impl.factory.Snmp4JTargetFactory;
 
 public class Snmp4JClientFacade implements SnmpClientFacade {
@@ -33,6 +34,14 @@ public class Snmp4JClientFacade implements SnmpClientFacade {
     private SnmpService snmpService = null;
     
     private SnmpServiceWrite snmpServiceWrite = null;
+    
+    public Snmp4JClientFacade() {}
+    
+    public Snmp4JClientFacade(String snmpResponseFile) {
+        if (snmp4JSessionFactory == null) {
+            snmp4JSessionFactory = new Snmp4JSimulationSessionFactory(snmpResponseFile);
+        }
+    }
     
     public SnmpServiceWrite getSnmpServiceWrite(SnmpSession snmpSession) {
         return snmpServiceWrite == null ? new Snmp4JServiceWrite(snmpSession) : snmpServiceWrite;

@@ -21,6 +21,8 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.snmp4j.PDU;
 import org.snmp4j.Snmp;
 import org.snmp4j.event.ResponseEvent;
@@ -35,6 +37,8 @@ import com.rogueai.framework.snmp2bean.exception.SnmpAnnotationException;
 import com.rogueai.framework.snmp2bean.exception.SnmpException;
 
 public class Snmp4JService extends AbstractSnmp4JService implements SnmpService {
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(Snmp4JService.class);
     
     public Snmp4JService(SnmpSession snmpSession) {
         setSnmpSession(snmpSession);

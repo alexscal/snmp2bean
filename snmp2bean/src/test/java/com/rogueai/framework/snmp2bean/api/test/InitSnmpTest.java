@@ -15,12 +15,15 @@
  *******************************************************************************/
 package com.rogueai.framework.snmp2bean.api.test;
 
+import java.io.File;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
 import com.rogueai.framework.snmp2bean.api.SnmpService;
 import com.rogueai.framework.snmp2bean.api.SnmpServiceFactory;
 import com.rogueai.framework.snmp2bean.api.snmp4J.impl.Snmp4JClientFacade;
+import com.rogueai.framework.snmp2bean.helper.TestHelper;
 
 
 public abstract class InitSnmpTest {
@@ -29,7 +32,10 @@ public abstract class InitSnmpTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        SnmpServiceFactory snmpServiceFactory = new SnmpServiceFactory(new Snmp4JClientFacade());
+        String propertyFileName = "SnmpServerTestResponses.properties";
+        File file = TestHelper.getProjectRelativePath("snmp2bean", "src/test/resources/" + propertyFileName);
+        Snmp4JClientFacade snmpClientFacade = new Snmp4JClientFacade(file.getAbsolutePath());
+        SnmpServiceFactory snmpServiceFactory = new SnmpServiceFactory(snmpClientFacade);
         service = snmpServiceFactory.builSnmpService("127.0.0.1", 161, "public");
     }
     

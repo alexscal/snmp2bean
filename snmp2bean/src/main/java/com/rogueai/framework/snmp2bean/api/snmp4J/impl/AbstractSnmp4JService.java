@@ -86,9 +86,7 @@ public abstract class AbstractSnmp4JService {
             e.setSnmpErrorMsgProvider(getSnmpErrorMsgProvider());
             throw e;
         }
-    }
-    
-    
+    }  
     
     protected void populateOidIndexes(Object entry, int[] indexOids) throws IllegalArgumentException, IllegalAccessException {
         Class<? extends Object> clazz = entry.getClass();

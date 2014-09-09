@@ -32,9 +32,17 @@ public class Snmp4JSession extends AbstractSnmpSession {
     private final Snmp4JTarget target;
     
     public Snmp4JSession(SnmpTarget target) throws IOException {
+        this(target, new DefaultUdpTransportMapping());
+    }
+
+    public Snmp4JSession(SnmpTarget target, TransportMapping transportMapping) throws IOException {
         this.target = (Snmp4JTarget) target;
-        TransportMapping<?> tm = new DefaultUdpTransportMapping();
-        snmp4J = new Snmp(tm);
+        initSnmp4J(transportMapping);
+    }
+    
+    public void initSnmp4J(TransportMapping transportMapping) throws IOException {
+        if (target == null) return; // no execution.. maybe throw exception
+        snmp4J = new Snmp(transportMapping);
         snmp4J.listen();
     }
     

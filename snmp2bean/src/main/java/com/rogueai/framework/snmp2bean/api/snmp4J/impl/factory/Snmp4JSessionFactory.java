@@ -17,19 +17,25 @@ package com.rogueai.framework.snmp2bean.api.snmp4J.impl.factory;
 
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.rogueai.framework.snmp2bean.api.SnmpSession;
 import com.rogueai.framework.snmp2bean.api.SnmpSessionFactory;
 import com.rogueai.framework.snmp2bean.api.SnmpTarget;
 import com.rogueai.framework.snmp2bean.api.snmp4J.impl.Snmp4JErrorMsgProvider;
 import com.rogueai.framework.snmp2bean.api.snmp4J.impl.Snmp4JSession;
 import com.rogueai.framework.snmp2bean.api.snmp4J.impl.Snmp4JSmiTypeProvider;
+import com.rogueai.framework.snmp2bean.test.server.DummyTransport;
 
 public class Snmp4JSessionFactory implements SnmpSessionFactory {
     
-    private final Snmp4JSmiTypeProvider typeProvider;
+    protected final Snmp4JSmiTypeProvider typeProvider;
 
-    private final Snmp4JErrorMsgProvider errorMsgProvider;
+    protected final Snmp4JErrorMsgProvider errorMsgProvider;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(Snmp4JSessionFactory.class);
+    
     public Snmp4JSessionFactory() {
         typeProvider = new Snmp4JSmiTypeProvider();
         errorMsgProvider = new Snmp4JErrorMsgProvider();
