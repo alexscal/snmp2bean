@@ -150,7 +150,7 @@ public abstract class AbstractSnmp4JService {
             }
         }
     }
-      
+    
     protected void populateProperties(Object object, PDU pdu)
             throws InstantiationException, IllegalAccessException {
         Field[] propFields = SnmpServiceUtil.getPropFields(object.getClass());
@@ -159,17 +159,41 @@ public abstract class AbstractSnmp4JService {
             propField.setAccessible(true);
             MibObjectType mot = propField.getAnnotation(MibObjectType.class);
             OID oid = new OID(mot.oid());
-            VariableBinding variable = findVariableBindingByOid(oid, variableBindings);
-            if (variable != null) {
+            VariableBinding variableBinding = findVariableBindingByOid(oid, variableBindings);
+            if (variableBinding != null) {
                 Object value = null;
-                if (mot.smiType() == SmiType.DISPLAY_STRING) {
-                    value = variable.getVariable().toString();
-                } else if (mot.smiType() == SmiType.OID) {
-                    value = variable.getOid().toString();
+                
+                if (mot.smiType() == SmiType.OID) {
+                    value = variableBinding.getOid().toString();
                 }
+                else 
+                    value = getValueFromVariableAndType(variableBinding.getVariable(), mot);
+                
                 if (value != null) propField.set(object, value);
             }
         }
+    }
+    
+    private Object getValueFromVariableAndType(Variable variable, MibObjectType mot) {
+        Object value = null;
+        
+        switch (mot.smiType()) {
+            case INTEGER:
+            case INTEGER32:
+                value = variable.toInt();
+                break;
+            case TIMETICKS:
+            case UNSIGNED32:
+            case COUNTER32:
+            case COUNTER64:
+            case GAUGE32:
+                value = variable.toLong();
+                break;
+            default:
+                value = variable.toString();
+        }
+        
+        return value;
     }
     
     protected Variable findVariableByOid(OID oid, Vector<?> variableBindings) {
@@ -206,11 +230,11 @@ public abstract class AbstractSnmp4JService {
                     "No index oid."));
         }
     }
-
+    
     public SnmpSession getSnmpSession() {
         return snmpSession;
     }
-
+    
     public void setSnmpSession(SnmpSession snmpSession) {
         this.snmpSession = snmpSession;
         pduBuilder = new PduBuilder(getSmiTypeProvider());

@@ -34,7 +34,7 @@ public abstract class InitSnmpTest {
     public static void setUp() throws Exception {
         String propertyFileName = "SnmpServerTestResponses.properties";
         File file = TestHelper.getProjectRelativePath("snmp2bean", "src/test/resources/" + propertyFileName);
-        Snmp4JClientFacade snmpClientFacade = new Snmp4JClientFacade(file.getAbsolutePath());
+        Snmp4JClientFacade snmpClientFacade = new Snmp4JClientFacade();
         SnmpServiceFactory snmpServiceFactory = new SnmpServiceFactory(snmpClientFacade);
         service = snmpServiceFactory.builSnmpService("127.0.0.1", 161, "public");
     }

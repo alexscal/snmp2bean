@@ -35,6 +35,9 @@ public class Snmp4jSessionFactoryTest extends InitSnmpTest {
         try {
             SystemInfo sysMIB = service.get(SystemInfo.class);
             assertNotNull(sysMIB.getSysObjectID());
+            assertNotNull(sysMIB.getSysUpTime());
+            assertTrue(sysMIB.getSysUpTime() > 0);
+            System.out.println(sysMIB.getSysUpTime());
         } catch (Exception e) {
             e.printStackTrace();
             fail();
