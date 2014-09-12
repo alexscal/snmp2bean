@@ -47,6 +47,7 @@ public class Snmp4JSmiTypeProvider implements SmiTypeProvider {
                 return TimeTicks.class;
             case COUNTER64:
                 return Counter64.class;
+            case DISPLAY_STRING:
             case OCTET_STRING:
             case OPAQUE:
                 return OctetString.class;
