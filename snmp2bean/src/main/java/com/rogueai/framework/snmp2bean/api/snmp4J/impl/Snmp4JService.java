@@ -49,6 +49,8 @@ public class Snmp4JService extends AbstractSnmp4JService implements SnmpService 
     }
     
     public <T> T get(Class<T> scalarClass) throws IOException, SnmpException,  SnmpAnnotationException {
+        if (LOGGER.isDebugEnabled()) 
+            LOGGER.debug("Executing get for "+ scalarClass);
         PDU requestPDU = pduBuilder.buildGetPDU(scalarClass);
         return get(scalarClass, requestPDU);
     }

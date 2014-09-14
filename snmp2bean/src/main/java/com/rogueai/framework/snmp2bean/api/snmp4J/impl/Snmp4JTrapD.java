@@ -21,7 +21,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.snmp4j.CommandResponder;
 import org.snmp4j.CommandResponderEvent;
 import org.snmp4j.MessageDispatcherImpl;
@@ -50,7 +51,7 @@ import com.rogueai.framework.snmp2bean.api.SnmpTrapMsg;
 
 public class Snmp4JTrapD implements SnmpTrapD, CommandResponder {
     
-    private static Logger LOGGER = Logger.getLogger(Snmp4JTrapD.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Snmp4JService.class);
     
     private String listenAddress = "udp:0.0.0.0/162";
     

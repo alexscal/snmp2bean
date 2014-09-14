@@ -189,6 +189,9 @@ public abstract class AbstractSnmp4JService {
             case GAUGE32:
                 value = variable.toLong();
                 break;
+            case OCTET_STRING:
+                value = variable.toString().getBytes();
+                break;
             default:
                 value = variable.toString();
         }
