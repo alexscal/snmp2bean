@@ -49,9 +49,7 @@ public class Snmp4JServiceWrite extends Snmp4JService implements SnmpServiceWrit
             checkEventError(event);
             PDU responsePDU = event.getResponse();
             checkResponseError(responsePDU);
-        } catch (IllegalArgumentException e) {
-            throw new SnmpAnnotationException(e);
-        } catch (IllegalAccessException e) {
+        } catch (IllegalArgumentException | IllegalAccessException e) {
             throw new SnmpAnnotationException(e);
         }
     }
@@ -64,17 +62,7 @@ public class Snmp4JServiceWrite extends Snmp4JService implements SnmpServiceWrit
             checkEventError(event);
             PDU responsePDU = event.getResponse();
             checkResponseError(responsePDU);
-        } catch (InstantiationException e) {
-            throw new SnmpAnnotationException(e);
-        } catch (IllegalAccessException e) {
-            throw new SnmpAnnotationException(e);
-        } catch (IllegalArgumentException e) {
-            throw new SnmpAnnotationException(e);
-        } catch (SecurityException e) {
-            throw new SnmpAnnotationException(e);
-        } catch (NoSuchMethodException e) {
-            throw new SnmpAnnotationException(e);
-        } catch (InvocationTargetException e) {
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | SecurityException | NoSuchMethodException | InvocationTargetException e) {
             throw new SnmpAnnotationException(e);
         }
     }
@@ -87,17 +75,7 @@ public class Snmp4JServiceWrite extends Snmp4JService implements SnmpServiceWrit
             checkEventError(event);
             PDU responsePDU = event.getResponse();
             checkResponseError(responsePDU);
-        } catch (IllegalArgumentException e) {
-            throw new SnmpAnnotationException(e);
-        } catch (IllegalAccessException e) {
-            throw new SnmpAnnotationException(e);
-        } catch (SecurityException e) {
-            throw new SnmpAnnotationException(e);
-        } catch (NoSuchMethodException e) {
-            throw new SnmpAnnotationException(e);
-        } catch (InstantiationException e) {
-            throw new SnmpAnnotationException(e);
-        } catch (InvocationTargetException e) {
+        } catch (IllegalArgumentException | IllegalAccessException | SecurityException | NoSuchMethodException | InstantiationException | InvocationTargetException e) {
             throw new SnmpAnnotationException(e);
         }
     }

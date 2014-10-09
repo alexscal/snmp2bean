@@ -34,7 +34,7 @@ public class Snmp4JSession extends AbstractSnmpSession {
     public Snmp4JSession(SnmpTarget target) throws IOException {
         this(target, new DefaultUdpTransportMapping());
     }
-
+    
     public Snmp4JSession(SnmpTarget target, TransportMapping transportMapping) throws IOException {
         this.target = (Snmp4JTarget) target;
         initSnmp4J(transportMapping);
@@ -46,8 +46,9 @@ public class Snmp4JSession extends AbstractSnmpSession {
         snmp4J.listen();
     }
     
-    public Snmp getSnmp() {
-        return snmp4J;
+    public Snmp4JWrapper getSnmpWrapper() {
+        Snmp4JWrapper snmpWrapper = new Snmp4JWrapperImpl<Snmp>(snmp4J);
+        return snmpWrapper;
     }
     
     public Target getReadTarget() {

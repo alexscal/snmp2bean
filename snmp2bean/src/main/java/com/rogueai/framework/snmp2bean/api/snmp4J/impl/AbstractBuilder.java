@@ -112,6 +112,7 @@ public abstract class AbstractBuilder {
     protected OID appendRawOids(OID oid, int[] integers) {
         if (oid == null)
             return new OID(integers);
+        
         oid.append(new OID(integers));
         return oid;
     }

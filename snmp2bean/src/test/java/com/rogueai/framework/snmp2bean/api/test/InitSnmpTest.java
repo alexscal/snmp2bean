@@ -33,7 +33,7 @@ public abstract class InitSnmpTest {
     @BeforeClass
     public static void setUp() throws Exception {
         String propertyFileName = "SnmpServerTestResponses.properties";
-        File file = TestHelper.getProjectRelativePath("snmp2bean", "src/test/resources/" + propertyFileName);
+     //   File file = TestHelper.getProjectRelativePath("snmp2bean", "src/test/resources/snmpResponses/" + propertyFileName);
         Snmp4JClientFacade snmpClientFacade = new Snmp4JClientFacade();
         SnmpServiceFactory snmpServiceFactory = new SnmpServiceFactory(snmpClientFacade);
         service = snmpServiceFactory.builSnmpService("127.0.0.1", 161, "public");

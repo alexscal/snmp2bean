@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,34 +13,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package com.rogueai.framework.snmp2bean.api;
+package com.rogueai.framework.snmp2bean.api.snmp4J.impl.dummy;
 
 import java.io.IOException;
 
 import org.snmp4j.Target;
 
+import com.rogueai.framework.snmp2bean.api.AbstractSnmpSession;
 import com.rogueai.framework.snmp2bean.api.snmp4J.impl.Snmp4JWrapper;
+import com.rogueai.framework.snmp2bean.test.server.SnmpOIDMap;
 
-public interface SnmpSession {
- 
-    int getRetries();
+public class Snmp4JDummySession extends AbstractSnmpSession {
 
-    void setRetries(int retries);
+    final private Snmp4JWrapper snmp4JWrapper; 
+    
+    public Snmp4JDummySession(SnmpOIDMap snmpOIDMap) {
+        snmp4JWrapper = new Snmp4JWrapperDummyImpl(snmpOIDMap);
+    }
+    
+    @Override
+    public Snmp4JWrapper getSnmpWrapper() {
+       return snmp4JWrapper;
+    }
 
-    int getTimeout();
+    @Override
+    public Target getReadTarget() {
+        return null;
+    }
 
-    void setTimeout(int timeout);
-    
-    Snmp4JWrapper getSnmpWrapper();
-    
-    Target getReadTarget();
-    
-    Target getWriteTarget();
+    @Override
+    public Target getWriteTarget() {
+        return null;
+    }
 
-    void close() throws IOException;
-    
-    SmiTypeProvider getSmiTypeProvider();
-    
-    SnmpErrorMsgProvider getSnmpErrorMsgProvider();
+    @Override
+    public void close() throws IOException {
+        
+    }
     
 }

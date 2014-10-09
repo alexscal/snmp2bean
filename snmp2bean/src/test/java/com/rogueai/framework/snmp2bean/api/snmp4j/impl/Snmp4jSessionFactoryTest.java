@@ -67,6 +67,7 @@ public class Snmp4jSessionFactoryTest extends InitSnmpTest {
             List<IfEntry> list = service.getTable(IfEntry.class);
             assertTrue(list.size() > 0);
             for (Object o : list) {
+                System.out.println(((IfEntry) o).getIfIndex());
                 System.out.println(((IfEntry) o).getIfDescr());
             }
         } catch (Exception e) {

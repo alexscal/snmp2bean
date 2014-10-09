@@ -26,7 +26,6 @@ import com.rogueai.framework.snmp2bean.api.SnmpTarget;
 import com.rogueai.framework.snmp2bean.api.snmp4J.impl.Snmp4JErrorMsgProvider;
 import com.rogueai.framework.snmp2bean.api.snmp4J.impl.Snmp4JSession;
 import com.rogueai.framework.snmp2bean.api.snmp4J.impl.Snmp4JSmiTypeProvider;
-import com.rogueai.framework.snmp2bean.test.server.DummyTransport;
 
 public class Snmp4JSessionFactory implements SnmpSessionFactory {
     

@@ -27,5 +27,6 @@ public enum SmiType {
     OCTET_STRING, 
     OPAQUE, 
     OID, 
-    IPADDRESS, 
+    IPADDRESS,
+    ROWSTATUS
 }

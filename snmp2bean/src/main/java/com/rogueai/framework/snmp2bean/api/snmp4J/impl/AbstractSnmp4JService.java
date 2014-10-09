@@ -151,8 +151,7 @@ public abstract class AbstractSnmp4JService {
         }
     }
     
-    protected void populateProperties(Object object, PDU pdu)
-            throws InstantiationException, IllegalAccessException {
+    protected void populateProperties(Object object, PDU pdu) throws InstantiationException, IllegalAccessException {
         Field[] propFields = SnmpServiceUtil.getPropFields(object.getClass());
         Vector<? extends VariableBinding> variableBindings = pdu.getVariableBindings();
         for (Field propField : propFields) {
@@ -219,8 +218,7 @@ public abstract class AbstractSnmp4JService {
         return null;
     }
     
-    protected void checkRowStatusAnnotation(RowStatus rowStatus)
-            throws SnmpAnnotationException {
+    protected void checkRowStatusAnnotation(RowStatus rowStatus) throws SnmpAnnotationException {
         if (rowStatus == null) {
             throw new SnmpAnnotationException(new NullPointerException(
                     "No RowStatus Annotation."));

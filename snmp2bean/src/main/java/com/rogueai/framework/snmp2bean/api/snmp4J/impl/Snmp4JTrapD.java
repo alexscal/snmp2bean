@@ -51,7 +51,7 @@ import com.rogueai.framework.snmp2bean.api.SnmpTrapMsg;
 
 public class Snmp4JTrapD implements SnmpTrapD, CommandResponder {
     
-    private static final Logger LOGGER = LoggerFactory.getLogger(Snmp4JService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Snmp4JTrapD.class);
     
     private String listenAddress = "udp:0.0.0.0/162";
     

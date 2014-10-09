@@ -37,9 +37,9 @@ public class Snmp4JClientFacade implements SnmpClientFacade {
     
     public Snmp4JClientFacade() {}
     
-    public Snmp4JClientFacade(String snmpResponseFile) {
-        if (snmp4JSessionFactory == null) {
-            snmp4JSessionFactory = new Snmp4JSimulationSessionFactory(snmpResponseFile);
+    public Snmp4JClientFacade(String snmpResponse) {
+        if (snmp4JSessionFactory == null && !snmpResponse.isEmpty()) {
+            snmp4JSessionFactory = new Snmp4JSimulationSessionFactory(snmpResponse);
         }
     }
     

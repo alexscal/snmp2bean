@@ -24,7 +24,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snmp4j.PDU;
-import org.snmp4j.Snmp;
 import org.snmp4j.event.ResponseEvent;
 import org.snmp4j.smi.OID;
 
@@ -44,8 +43,8 @@ public class Snmp4JService extends AbstractSnmp4JService implements SnmpService 
         setSnmpSession(snmpSession);
     }
     
-    protected Snmp getSnmp() {
-        return snmpSession.getSnmp();
+    protected Snmp4JWrapper getSnmp() {
+        return snmpSession.getSnmpWrapper();
     }
     
     public <T> T get(Class<T> scalarClass) throws IOException, SnmpException,  SnmpAnnotationException {
@@ -59,9 +58,7 @@ public class Snmp4JService extends AbstractSnmp4JService implements SnmpService 
         try {
             PDU requestPDU = pduBuilder.buildGetPDU(scalarClass, fields);
             return get(scalarClass, requestPDU);
-        } catch (SecurityException e) {
-            throw new SnmpAnnotationException(e);
-        } catch (NoSuchFieldException e) {
+        } catch (SecurityException | NoSuchFieldException e) {
             throw new SnmpAnnotationException(e);
         }
     }
@@ -89,11 +86,7 @@ public class Snmp4JService extends AbstractSnmp4JService implements SnmpService 
                 requestPDU = pduBuilder.buildGetNextEntryPDU(entry);
             }
             return list;
-        } catch (IllegalArgumentException e) {
-            throw new SnmpAnnotationException(e);
-        } catch (InstantiationException e) {
-            throw new SnmpAnnotationException(e);
-        } catch (IllegalAccessException e) {
+        } catch (IllegalArgumentException | InstantiationException | IllegalAccessException e) {
             throw new SnmpAnnotationException(e);
         }
     }
@@ -103,9 +96,7 @@ public class Snmp4JService extends AbstractSnmp4JService implements SnmpService 
             T entry = buildEntryWithIndexes(entryClass, indexes);
             PDU requestPDU = pduBuilder.buildGetEntryPDU(entry);
             return getEntryByIndex(entry, requestPDU);
-        } catch (InstantiationException e) {
-            throw new SnmpAnnotationException(e);
-        } catch (IllegalAccessException e) {
+        } catch (InstantiationException | IllegalAccessException e) {
             throw new SnmpAnnotationException(e);
         }
     }
@@ -115,15 +106,7 @@ public class Snmp4JService extends AbstractSnmp4JService implements SnmpService 
             T entry = buildEntryWithIndexes(entryClass, indexes);
             PDU reqPDU = pduBuilder.buildGetEntryPDU(entry, fields);
             return getEntryByIndex(entry, reqPDU);
-        } catch (IllegalArgumentException e) {
-            throw new SnmpAnnotationException(e);
-        } catch (SecurityException e) {
-            throw new SnmpAnnotationException(e);
-        } catch (IllegalAccessException e) {
-            throw new SnmpAnnotationException(e);
-        } catch (NoSuchFieldException e) {
-            throw new SnmpAnnotationException(e);
-        } catch (InstantiationException e) {
+        } catch (IllegalArgumentException | SecurityException | IllegalAccessException | NoSuchFieldException | InstantiationException e) {
             throw new SnmpAnnotationException(e);
         }
     }
@@ -142,9 +125,7 @@ public class Snmp4JService extends AbstractSnmp4JService implements SnmpService 
             T mibObj = scalarClass.newInstance();
             populateProperties(mibObj, responsePDU);
             return mibObj;
-        } catch (InstantiationException e) {
-            throw new SnmpAnnotationException(e);
-        } catch (IllegalAccessException e) {
+        } catch (InstantiationException | IllegalAccessException e) {
             throw new SnmpAnnotationException(e);
         }
     }
@@ -175,11 +156,11 @@ public class Snmp4JService extends AbstractSnmp4JService implements SnmpService 
     
     @Override
     protected SmiTypeProvider getSmiTypeProvider() {
-        return ((Snmp4JSession)snmpSession).getSmiTypeProvider();
+        return snmpSession.getSmiTypeProvider();
     }
     
     @Override
     protected SnmpErrorMsgProvider getSnmpErrorMsgProvider() {
-        return ((Snmp4JSession)snmpSession).getSnmpErrorMsgProvider();
+        return snmpSession.getSnmpErrorMsgProvider();
     }
 }

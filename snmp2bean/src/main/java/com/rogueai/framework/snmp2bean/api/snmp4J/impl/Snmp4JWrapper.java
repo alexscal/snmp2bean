@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,34 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package com.rogueai.framework.snmp2bean.api;
+package com.rogueai.framework.snmp2bean.api.snmp4J.impl;
 
-import java.io.IOException;
-
+import org.snmp4j.PDU;
 import org.snmp4j.Target;
+import org.snmp4j.event.ResponseEvent;
 
-import com.rogueai.framework.snmp2bean.api.snmp4J.impl.Snmp4JWrapper;
-
-public interface SnmpSession {
- 
-    int getRetries();
-
-    void setRetries(int retries);
-
-    int getTimeout();
-
-    void setTimeout(int timeout);
+public interface Snmp4JWrapper {
     
-    Snmp4JWrapper getSnmpWrapper();
+    <T> T getSnmp();
     
-    Target getReadTarget();
+    ResponseEvent get(PDU pdu, Target target);
     
-    Target getWriteTarget();
-
-    void close() throws IOException;
+    ResponseEvent getNext(PDU pdu, Target target);
     
-    SmiTypeProvider getSmiTypeProvider();
+    ResponseEvent set(PDU pdu, Target target);
     
-    SnmpErrorMsgProvider getSnmpErrorMsgProvider();
-    
+    void close();
 }
