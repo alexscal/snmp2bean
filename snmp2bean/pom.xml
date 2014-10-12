@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.rogueai</groupId>
 	<artifactId>snmp2bean</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0</version>
 	<name>Snmp 2 Bean</name>
 	<description>Framework to Map SNMP OID to Java Bean</description>
 	<dependencies>
@@ -80,4 +80,8 @@
 		</pluginManagement>
 	</build>
 
+	<organization>
+		<name>Rogueai</name>
+		<url>http://www.rogueai.com</url>
+	</organization>
 </project>

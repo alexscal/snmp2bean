@@ -92,8 +92,8 @@ public class Snmp4JServiceTest  {
             for (T t : list)
             {
                 TestHelper.printBean(t);
-                return list;
             }
+            return list;
         }
         catch (Exception e)
         {
