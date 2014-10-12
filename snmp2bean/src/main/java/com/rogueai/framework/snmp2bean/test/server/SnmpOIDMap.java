@@ -228,7 +228,7 @@ public class SnmpOIDMap {
         return returnValue;
     }
     
-    public String getPropertyValueByIndexAndKey(Integer index, String key) {
+    public String getPropertyValueByIndexAndKey(String index, String key) {
         Map<String, Object> map = mapResponses.get(index);
         
         if (map == null)

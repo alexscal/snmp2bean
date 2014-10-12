@@ -38,7 +38,7 @@ public class SnmpOIDMapTest {
         Assert.assertNotNull(file);
         
         SnmpOIDMap snmpOIDMap = new SnmpOIDMap(file.getAbsolutePath());
-        String property = snmpOIDMap.getPropertyValueByIndexAndKey(0, "1.3.6.1.2.1.1.1");
+        String property = snmpOIDMap.getPropertyValueByIndexAndKey("0", "1.3.6.1.2.1.1.1");
         Assert.assertNotNull(property);
         
         Assert.assertEquals("SystemDescription", property);
@@ -52,12 +52,12 @@ public class SnmpOIDMapTest {
         Assert.assertNotNull(file);
         
         SnmpOIDMap snmpOIDMap = new SnmpOIDMap(file.getAbsolutePath());
-        String property = snmpOIDMap.getPropertyValueByIndexAndKey(1, "1.3.6.1.2.1.2.2.1.2");
+        String property = snmpOIDMap.getPropertyValueByIndexAndKey("1", "1.3.6.1.2.1.2.2.1.2");
         Assert.assertNotNull(property);
         
         Assert.assertEquals("lo", property);
         
-        property = snmpOIDMap.getPropertyValueByIndexAndKey(2, "1.3.6.1.2.1.2.2.1.2");
+        property = snmpOIDMap.getPropertyValueByIndexAndKey("2", "1.3.6.1.2.1.2.2.1.2");
         Assert.assertNotNull(property);
         
         Assert.assertEquals("eth0", property);
