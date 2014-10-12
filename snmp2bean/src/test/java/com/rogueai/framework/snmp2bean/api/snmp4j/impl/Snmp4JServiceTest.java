@@ -20,6 +20,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Test;
@@ -28,6 +29,7 @@ import com.rogueai.framework.snmp2bean.api.SnmpService;
 import com.rogueai.framework.snmp2bean.api.SnmpServiceFactory;
 import com.rogueai.framework.snmp2bean.api.snmp4J.impl.Snmp4JClientFacade;
 import com.rogueai.framework.snmp2bean.domain.test.IfEntry;
+import com.rogueai.framework.snmp2bean.domain.test.MultipleIndexEntry;
 import com.rogueai.framework.snmp2bean.domain.test.SystemInfo;
 import com.rogueai.framework.snmp2bean.helper.TestHelper;
 
@@ -42,15 +44,11 @@ public class Snmp4JServiceTest  {
     }
     
     @Test
-    public void testGetTable() {
+    public void SingleIndexTableTest() {
         SnmpService service = buildService("IfEntry.snmp");
         try {
-            List<IfEntry> list = service.getTable(IfEntry.class);
+            List<IfEntry> list = printResultsForGetTable(service, IfEntry.class);
             assertTrue(list.size() > 0);
-            for (Object o : list) {
-                System.out.println(((IfEntry) o).getIfIndex());
-                System.out.println(((IfEntry) o).getIfDescr());
-            }
         } catch (Exception e) {
             e.printStackTrace();
             fail();
@@ -72,5 +70,53 @@ public class Snmp4JServiceTest  {
         }
     }
     
+    @Test
+    public void MultipleIndexEntryTest() {
+        SnmpService service = buildService("MultipleIndexEntry");
+        try {
+            printResultsForGetTable(service, MultipleIndexEntry.class);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail();
+        }
+    }
+    
+    protected <T> List<T> printResultsForGetTable(SnmpService service, Class<T> classz)
+    {
+        try
+        {
+            List<T> list = service.getTable(classz);
+            if (list.size() == 0)
+                return Collections.emptyList();
+            for (T t : list)
+            {
+                TestHelper.printBean(t);
+                return list;
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            fail();
+        }
+        return Collections.emptyList();
+    }
+
+    protected <T> T printResultsForGet(SnmpService service, Class<T> classz)
+    {
+        try
+        {
+            T t = service.get(classz);
+            TestHelper.printBean(t);
+            return t;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            fail();
+        }
+        return null;
+    }
     
 }

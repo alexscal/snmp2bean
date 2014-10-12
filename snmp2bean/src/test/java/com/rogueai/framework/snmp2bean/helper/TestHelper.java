@@ -17,6 +17,9 @@ package com.rogueai.framework.snmp2bean.helper;
 
 import java.io.File;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
 public class TestHelper {
     
     public static File getProjectRelativePath(String projectPath, String relativePath)
@@ -36,6 +39,10 @@ public class TestHelper {
             throw new RuntimeException(relativePath + " not found.");
         }
         return flowDir;
+    }
+    
+    public static void printBean(Object object) {
+        System.out.println(ToStringBuilder.reflectionToString(object, ToStringStyle.MULTI_LINE_STYLE))  ;
     }
     
 }

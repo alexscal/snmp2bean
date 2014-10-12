@@ -34,6 +34,7 @@ import org.snmp4j.PDU;
 import org.snmp4j.smi.Integer32;
 import org.snmp4j.smi.OID;
 import org.snmp4j.smi.OctetString;
+import org.snmp4j.smi.UnsignedInteger32;
 import org.snmp4j.smi.Variable;
 import org.snmp4j.smi.VariableBinding;
 
@@ -42,8 +43,9 @@ public class SnmpOIDMap {
     private static final Logger LOGGER = LoggerFactory.getLogger(SnmpOIDMap.class);
     
     private SortedProperties properties = new SortedProperties();
-    private Map<Integer, Map<String, Object>> mapResponses = new TreeMap<>();
-    private Queue<Integer> queue;
+    private Map<String, Map<String, Object>> mapResponses = new TreeMap<>();
+    
+    private Queue<String> queue;
     
     public SnmpOIDMap(String propertyFilePath) throws IOException {
         loadProperties(propertyFilePath);
@@ -53,14 +55,14 @@ public class SnmpOIDMap {
         setUpMockData(null);
     }
     
-    private void setUpMockData(Map<Integer, Map<String, Object>> mockMapResponses) {
+    private void setUpMockData(Map<String, Map<String, Object>> mockMapResponses) {
         queue = new ConcurrentLinkedQueue<>();
         
         if (mockMapResponses == null) return;
         
         mapResponses = new TreeMap<>(mockMapResponses);
         
-        for (Integer key : mapResponses.keySet()) {
+        for (String key : mapResponses.keySet()) {
             queue.add(key);
         }
     }
@@ -71,7 +73,7 @@ public class SnmpOIDMap {
         
         response.clear(); // remove all the varbinds
         
-        Integer index = queue.poll();
+        String index = queue.poll();
         if (index == null) {
             VariableBinding vb = new VariableBinding();
             String oid = "6.6.6.6.6.6.6.6.6.6"; // Dummy OID to stop the count
@@ -94,11 +96,9 @@ public class SnmpOIDMap {
             vb.setOid(new OID(oid));
             
             Object value = sortedMap.get(key);
-            Variable v = null;
-            if (value instanceof Integer)
-                v = new Integer32((int) value);
-            else 
-                v = new OctetString((String) value);
+            Variable v = getSnmpVariableByValueType(value);
+            
+           
             vb.setVariable(v);
             response.add(vb);
         }
@@ -106,7 +106,17 @@ public class SnmpOIDMap {
         return response;
     }
     
-    
+    private Variable getSnmpVariableByValueType(Object value) {
+        Variable v = null;
+        if (value instanceof Integer)
+            v = new Integer32((int) value);
+        else if (value instanceof Long) 
+            v = new UnsignedInteger32((long) value);
+        else
+            v = new OctetString((String) value);
+        
+        return v;
+    }
     
     private Properties loadProperties(String propertyFilePath) throws IOException {
         InputStream configInputStream = new FileInputStream(propertyFilePath);
@@ -114,7 +124,7 @@ public class SnmpOIDMap {
         
         mapResponses.clear();
         
-        Map<Integer, Map<String, Object>> mockMapResponses = new HashMap<>();
+        Map<String, Map<String, Object>> mockMapResponses = new HashMap<>();
         
         
         Enumeration<Object> keys = properties.keys();
@@ -153,7 +163,7 @@ public class SnmpOIDMap {
                 continue;
             }
             
-            Integer index = Integer.valueOf(keySplit[0]);
+            String index = String.valueOf(keySplit[0]);
             if (index == null) {
                 LOGGER.warn("No index found in string: [" + key + "]");
                 continue;
