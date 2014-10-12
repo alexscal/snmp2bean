@@ -7,6 +7,41 @@
 	<packaging>jar</packaging>
 	<name>Snmp 2 Bean</name>
 	<description>Framework to Map SNMP responses to Java Bean</description>
+
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>7</version>
+	</parent>
+
+	<organization>
+		<name>Rogueai</name>
+		<url>http://www.rogueai.com</url>
+	</organization>
+
+	<licenses>
+		<license>
+			<name>Apache License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<id>alexscal</id>
+			<name>Alex Scal</name>
+			<email>alex.scal@gmail.com</email>
+		</developer>
+	</developers>
+
+	<scm>
+		<connection>scm:git:https://github.com/alexscal/snmp2bean.git</connection>
+		<developerConnection>scm:git:https://github.com/alexscal/snmp2bean.git</developerConnection>
+		<url>https://github.com/alexscal/snmp2bean</url>
+	</scm>
+	<url>https://github.com/alexscal/snmp2bean</url>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.snmp4j</groupId>
@@ -140,31 +175,18 @@
 		</pluginManagement>
 	</build>
 
-	<organization>
-		<name>Rogueai</name>
-		<url>http://www.rogueai.com</url>
-	</organization>
+	<distributionManagement>
+		<!-- Repository for snapshots -->
+		<snapshotRepository>
+			<id>sonatype-nexus-snapshots</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+		<!-- Repository for releases -->
+		<repository>
+			<id>nexus-releases</id>
+			<name>Nexus Release Repository</name>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
+	</distributionManagement>
 
-	<licenses>
-		<license>
-			<name>Apache License, Version 2.0</name>
-			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-			<distribution>repo</distribution>
-		</license>
-	</licenses>
-
-	<developers>
-		<developer>
-			<id>alexscal</id>
-			<name>Alex Scal</name>
-			<email>alex.scal@gmail.com</email>
-		</developer>
-	</developers>
-
-	<scm>
-		<connection>scm:git:https://github.com/alexscal/snmp2bean.git</connection>
-		<developerConnection>scm:git:https://github.com/alexscal/snmp2bean.git</developerConnection>
-		<url>https://github.com/alexscal/snmp2bean</url>
-	</scm>
-	<url>https://github.com/alexscal/snmp2bean</url>
 </project>
