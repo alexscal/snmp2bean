@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.rogueai</groupId>
 	<artifactId>snmp2bean</artifactId>
-	<version>1.0-SNAPSHOT</version>
+	<version>1.0</version>
 	<packaging>jar</packaging>
 	<name>Snmp 2 Bean</name>
 	<description>Framework to Map SNMP responses to Java Bean</description>
