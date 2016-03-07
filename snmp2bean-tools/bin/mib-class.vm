@@ -1,0 +1,37 @@
+
+package $package;
+
+import com.rogueai.framework.snmp2bean.annotation.MibIndex;
+import com.rogueai.framework.snmp2bean.annotation.MibObjectType;
+import com.rogueai.framework.snmp2bean.annotation.MibObjectType.Access;
+import com.rogueai.framework.snmp2bean.annotation.MibTable;
+import com.rogueai.framework.snmp2bean.enums.SmiType;
+
+#if(${node.table})
+@MibTable
+#end
+public class ${node.capitalizedName}
+{
+	
+	#foreach($child in ${node.children})
+	
+	#if(${child.index})
+	@MibIndex(no = 0, length = 1)
+	#end
+	@MibObjectType(oid = "${child.oid}", smiType = SmiType.${child.smiType}, access = Access.READ)
+    private ${child.javaType} ${child.name}; // ${child.description}
+	#end
+	
+	#foreach($child in ${node.children})
+    public ${child.javaType} get${child.capitalizedName}()
+    {
+        return ${child.name};
+    }
+
+    public void set${child.capitalizedName}(${child.javaType} ${child.name})
+    {
+        this.${child.name} = ${child.name};
+    }
+	#end
+
+}
